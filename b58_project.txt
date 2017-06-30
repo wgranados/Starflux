@@ -24,21 +24,22 @@ UofT E-mail Address:venkada.prasad@mail.utoronto.ca
 
 Team Member D (Optional)
 -------------
-First Name: 
+First Name:
 Last Name:
 Student Number:
 UofT E-mail Address:
 
 Project Details
 ---------------
-Project Title: 
+Project Title:
 
 Starflux
 
 Project Description:
 
-Vertical version of the arcade game: fpga defenders. The difference being 
-is that we have a cool down timer.
+Vertical version of the arcade game: fpga defenders. The difference being
+is that we have a cool down timer, a health bar, and allows for movement
+in all directions(up, down, left, right).
 
 Video URL: youtube.com/after
 
@@ -54,27 +55,56 @@ Proposal
 
 What do you plan to have completed by the end of the first lab session?:
 
+We plan to have the basic functions of the game completed by the end of the first
+lab session. That includes the basic movements of the ship and its bullets, as
+well as the cool down timer and the score. We would have also made plans
+for the graphics of the game.
+
 What do you plan to have completed by the end of the second lab session?:
+
+We plan to have completed the functions of the enemy ships and also their
+movements. We will also add other features such as the health bar, and refine
+the feature of the score with the max score cap. We would also have begun the
+graphics of the game being displayed to the screen.
 
 What do you plan to have completed by the end of the third lab session?:
 
+By the end of the third session, we plan to have completed the game mechanics. We also
+would have refined the final graphics of the game.
+
 What is your backup plan if things don’t work out as planned?
 
-What hardware will you need beyond the DE2 board 
+If things go off course, we are willing to work extra hours or remove some features
+of the game, such as the health bar or the cool down timer.
+
+What hardware will you need beyond the DE2 board
 (be sure to e-mail Brian if it’s anything beyond the basics to make sure there’s enough to go around)
+
+None.
 
 Motivations
 -----------
 How does this project relate to the material covered in CSCB58?:
 
+This project relates to the material covered in CSCB58 with the use of
+shift registers and counters from the labs. It is also an application of the VGA
+display.
+
 Why is this project interesting/cool (for CSCB58 students, and for non CSCB58 students?):
 
+This project is interesting for people because many people take great enjoyment
+in video games, and Starflux will be a game that can start off many who are new
+to gaming.
+
 Why did you personally choose this project?:
+
+// Hey guys! I don't really know what to say for this. We love the hardware course and all
+// but I don't think that's a good excuse...
 
 Attributions
 ------------
 Provide a complete list of any external resources your project used (attributions should also be included in your
-code).  
+code).
 
 Updates
 -------
@@ -85,4 +115,3 @@ expected (wasn't precise enough at further distances, only seems to work accurat
 we've decided to change the project to use a light sensor instead. Had trouble getting the FSM to work (kept
 getting stuck in state 101, took longer to debug than expected), so we may not be able to add the
 high score feature, have updated that in the project description as (optional).
-
