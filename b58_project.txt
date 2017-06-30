@@ -1,0 +1,88 @@
+CSCB58 Project File: Summer 2017
+
+Team Member A
+-------------
+First Name: William
+Last Name: Granados
+Student Number: 1002314114
+UofT E-mail Address: william.granadosmatamoros@mail.utoronto.ca
+
+
+Team Member B
+-------------
+First Name: Saskia Selestyna Tjioe
+Last Name: Tjioe
+Student Number: 1003279007
+UofT E-mail Address: saskia.tjioe@mail.utoronto.ca
+
+Team Member C (Optional)
+-------------
+First Name: Venkada
+Last Name: Prasad
+Student Number: 1002263953
+UofT E-mail Address:venkada.prasad@mail.utoronto.ca
+
+Team Member D (Optional)
+-------------
+First Name: 
+Last Name:
+Student Number:
+UofT E-mail Address:
+
+Project Details
+---------------
+Project Title: 
+
+Starflux
+
+Project Description:
+
+Vertical version of the arcade game: fpga defenders. The difference being 
+is that we have a cool down timer.
+
+Video URL: youtube.com/after
+
+Code URL (please upload a copy of this file to your repository at the end of the project as well, it will
+serve as a useful resource for future development):
+
+
+github.com
+
+
+Proposal
+--------
+
+What do you plan to have completed by the end of the first lab session?:
+
+What do you plan to have completed by the end of the second lab session?:
+
+What do you plan to have completed by the end of the third lab session?:
+
+What is your backup plan if things don’t work out as planned?
+
+What hardware will you need beyond the DE2 board 
+(be sure to e-mail Brian if it’s anything beyond the basics to make sure there’s enough to go around)
+
+Motivations
+-----------
+How does this project relate to the material covered in CSCB58?:
+
+Why is this project interesting/cool (for CSCB58 students, and for non CSCB58 students?):
+
+Why did you personally choose this project?:
+
+Attributions
+------------
+Provide a complete list of any external resources your project used (attributions should also be included in your
+code).  
+
+Updates
+-------
+
+<Example update. Delte this and add your own updates after each lab session>
+Week 1: We built the hardware and tested the sensors. The distance sensor we had intended to use didn't work as
+expected (wasn't precise enough at further distances, only seems to work accurately within 5-10cm), so instead
+we've decided to change the project to use a light sensor instead. Had trouble getting the FSM to work (kept
+getting stuck in state 101, took longer to debug than expected), so we may not be able to add the
+high score feature, have updated that in the project description as (optional).
+
