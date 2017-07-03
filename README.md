@@ -13,7 +13,8 @@ Hardware: DE2-115 Altera board
 4. Program the output files onto the board
 5. Enjoy the game!
 
-# Liscence
+# Licsense
+
 
 # Authors
 William Granados - code
