@@ -70,7 +70,8 @@ graphics of the game being displayed to the screen.
 What do you plan to have completed by the end of the third lab session?:
 
 By the end of the third session, we plan to have completed the game mechanics. We also
-would have refined the final graphics of the game.
+would have refined the final graphics of the game and make sure all the functions of the
+game have been met.
 
 What is your backup plan if things don’t work out as planned?
 
