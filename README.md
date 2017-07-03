@@ -13,15 +13,15 @@ Hardware: DE2-115 Altera board
 4. Program the output files onto the board
 5. Enjoy the game!
 
-# Licsense
-
-
 # Authors
 William Granados - code
 
 Venkada Prasad - code
 
 Saskia Selestyna Tjioe - 
+
+# Licsense
+This project is licsensed under the BSD-3 Licsense; see the LICSENSE file for details.
 
 
 Link to gitter chat:
