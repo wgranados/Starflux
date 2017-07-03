@@ -3,7 +3,9 @@ Scrolling-Shooter built using Quartus and the HDL Verilog, which was made for th
 
 # Before you begin
 To have your own copy of Starflux, the following requirements must be met:
+
 Software: Quartus Prime
+
 Hardware: DE2-115 Altera board
 
 # Set-up
