@@ -47,8 +47,8 @@ Code URL (please upload a copy of this file to your repository at the end of the
 serve as a useful resource for future development):
 
 
-github.com
-
+https://github.com/wgma00/CSCB58-Starflux
+(currently privated, will be made public closer to due date)
 
 Proposal
 --------
@@ -90,7 +90,8 @@ How does this project relate to the material covered in CSCB58?:
 
 This project relates to the material covered in CSCB58 with the use of
 shift registers and counters from the labs. It is also an application of the VGA
-display.
+display. And given enough time, we could also impelement some sort of strategy
+for the enemey ships by making use of FSMS.
 
 Why is this project interesting/cool (for CSCB58 students, and for non CSCB58 students?):
 
@@ -102,12 +103,17 @@ Why did you personally choose this project?:
 
 We chose this project because we felt it would be a nice challenge to see how
 well we can apply our learned concepts into something fun that can also be built upon
-later on.
+later on. One of the members of the group remember the game being implemented
+by one of their friends in highschool (with Java), and saw a lot of the core
+components could be translated over to hardare.
 
 Attributions
 ------------
 Provide a complete list of any external resources your project used (attributions should also be included in your
 code).
+
+Main inspiration for the game.
+https://github.com/justinli1/CompSci-Final-2015
 
 Updates
 -------
