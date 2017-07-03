@@ -16,9 +16,11 @@ Hardware: DE2-115 Altera board
 # Liscence
 
 # Authors
-..William Granados - code
-..Venkada Prasad - code
-..Saskia Selestyna Tjioe - 
+William Granados - code
+
+Venkada Prasad - code
+
+Saskia Selestyna Tjioe - 
 
 
 Link to gitter chat:
