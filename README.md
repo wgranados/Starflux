@@ -13,10 +13,12 @@ Hardware: DE2-115 Altera board
 4. Program the output files onto the board
 5. Enjoy the game!
 
+# Liscence
+
 # Authors
-William Granados - code
-Venkada Prasad - code
-Saskia Selestyna Tjioe - 
+..William Granados - code
+..Venkada Prasad - code
+..Saskia Selestyna Tjioe - 
 
 
 Link to gitter chat:
