@@ -1,0 +1,15 @@
+*.bak
+*.wlf
+_info
+*.qdb
+*.qpg
+*.qtl
+_vmake
+c5_pin_model_dump.txt
+db
+incremental_db
+*.qpf
+*.qsf
+*.qws
+output_files
+lab_*.v
