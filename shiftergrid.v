@@ -12,14 +12,33 @@ module shifter_grid(SW, Q);
   // have switch 0 be what allows the player to fire their weapon
   // at this point, we have yet to have something that will allow
   // enemy fire to be triggered, unless you want it to be on all the time
-  input [0:0] SW;
+  
+  input [17:0] SW; // SW[17] for the reset, SW[0] for firing the gun
 
   // set up wire outputs for the shifters
   wire [7:0]Q;
 
   // create the shifters that will cover the entire screen
-  shift_up s_up();
-  shift_down s_down();
+  // Create the shifter that will shift the player bullets up
+  shift_up s_up(
+    .load_val(SW[0]),
+    .load_n(),
+    .shift_u(),
+    .ASR(),
+    .clk(),
+    .reset(),
+    .Q(Q));
+
+  // Create the shifter that will allow enemy bullets to move down screen
+  shift_down s_down(
+    .load_val(SW[0]),
+    .load_n(),
+    .shift_d(),
+    .ASR(),
+    .clk(),
+    .reset(),
+    .Q(Q)
+    );
 
 endmodule
 
