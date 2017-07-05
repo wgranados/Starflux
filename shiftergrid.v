@@ -12,7 +12,7 @@ module shifter_grid(SW, Q);
   // have switch 0 be what allows the player to fire their weapon
   // at this point, we have yet to have something that will allow
   // enemy fire to be triggered, unless you want it to be on all the time
-  
+
   input [17:0] SW; // SW[17] for the reset, SW[0] for firing the gun
 
   // set up wire outputs for the shifters
@@ -76,19 +76,19 @@ endmodule
 
 // This module will take a rate divider to act as a clock for the register
 module rate_divider(enable, countdown_start, clock, reset_n, q);
-  input enable; // enable signal given from user
-  input reset_n; // reset signal given by user
+  input enable; // enable signal
+  input reset_n; // reset signal
   input clock; // clock signal given from CLOCK_50
-  input [27:0]countdown_start; // value that this counter should start counting down from
-  output reg [27:0]q; // output register we're outputting current count for this rate divider
+  input [27:0]countdown_start; // value that this counter should start at
+  output reg [27:0]q; // output register
 
-  // start counting down from count_down_start all the way to 0
+  // start counting down from countdown_start all the way to 0
   always @(posedge clock)
   begin
     if(reset_n == 1'b0) // when clear_b is 0
       q <= countdown_start;
-    else if(enable == 1'b1) // decrement q only when enable is high
-    q <= (q == 0) ? countdown_start : q - 1'b1; // if we get to 0, then we loop back
+    else if(enable == 1'b1) // countdown when enable is high
+    q <= (q == 0) ? countdown_start : q - 1'b1; // if 0, start countdown again
   end
 
 endmodule
@@ -100,11 +100,11 @@ module shifter_bit(in, load_val, shift, load_n, clk, reset_n, out);
   // Note that these should all be 1 bit inputs as we're really only handling/storing one bit of information in shifter bit
   input in; // connected to out port of left shifter, 0 otherwise on left most shifter bit
   input load_val; // input given from switches, used onlywhen shift = 0
-  input shift;  // indicates to shift all bits right
+  input shift;  // indicates to shift all bits
   input load_n; // indicates to load input from switches
   input clk;  // clock used for flip flop
   input reset_n;  // reset signal to set shifter bit's value to 0
-  output out; // output of value in shifter bit, generally sent to shifter bit on right
+  output out; // output of value in shifter bit, often sent to next shifter bit
 
   wire mux_one_out, mux_two_out;
 
