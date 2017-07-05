@@ -14,8 +14,10 @@ module shifter_grid(SW, Q);
   // enemy fire to be triggered, unless you want it to be on all the time
   input [0:0] SW;
 
+  // set up wire outputs for the shifters
   wire [7:0]Q;
 
+  // create the shifters that will cover the entire screen
   shift_up s_up();
   shift_down s_down();
 
@@ -129,7 +131,7 @@ endmodule
 module shift_up(load_val, load_n, shift_u, ASR, clk, reset, Q);
   input load_val; // this is loaded by the gun being fired from the player
   input load_n;
-  input shift_y;
+  input shift_u;
   input ASR;
   input clk; // the clk is from the rate divider
   input reset; // reset must be from some switch
@@ -141,14 +143,14 @@ module shift_up(load_val, load_n, shift_u, ASR, clk, reset, Q);
   // it will take a lot of shifter bits. So make a loop to make them all
   // as this is not complete, let's start with 300
   for (i = 0, i < 300, i = i + 1) begin
-    shifter_bit sb_7(.in(ASR), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[7]) );
-    shifter_bit sb_6(.in(sb_out[7]), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[6]) );
-    shifter_bit sb_5(.in(sb_out[6]), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[5]) );
-    shifter_bit sb_4(.in(sb_out[5]), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[4]) );
-    shifter_bit sb_3(.in(sb_out[4]), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[3]) );
-    shifter_bit sb_2(.in(sb_out[3]), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[2]) );
-    shifter_bit sb_1(.in(sb_out[2]), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[1]) );
-    shifter_bit sb_0(.in(sb_out[1]), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[0]) );
+    shifter_bit sb_7(.in(ASR), .load_val(load_val), .shift(shift_u), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[7]) );
+    shifter_bit sb_6(.in(sb_out[7]), .load_val(load_val), .shift(shift_u), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[6]) );
+    shifter_bit sb_5(.in(sb_out[6]), .load_val(load_val), .shift(shift_u), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[5]) );
+    shifter_bit sb_4(.in(sb_out[5]), .load_val(load_val), .shift(shift_u), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[4]) );
+    shifter_bit sb_3(.in(sb_out[4]), .load_val(load_val), .shift(shift_u), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[3]) );
+    shifter_bit sb_2(.in(sb_out[3]), .load_val(load_val), .shift(shift_u), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[2]) );
+    shifter_bit sb_1(.in(sb_out[2]), .load_val(load_val), .shift(shift_u), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[1]) );
+    shifter_bit sb_0(.in(sb_out[1]), .load_val(load_val), .shift(shift_u), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[0]) );
   end
 
   assign Q = sb_out[7:0];
@@ -160,7 +162,7 @@ endmodule
 module shift_down(load_val, load_n, shift_d, ASR, clk, reset, Q);
   input load_val;
   input load_n;
-  input shift_y;
+  input shift_d;
   input ASR;
   input clk;
   input reset;
@@ -172,14 +174,14 @@ module shift_down(load_val, load_n, shift_d, ASR, clk, reset, Q);
   // it will take a lot of shifter bits. So make a loop to make them all
   // as this is not complete, let's start with 300
   for (i = 0, i < 300, i = i + 1) begin
-    shifter_bit sb_7(.in(ASR), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[7]) );
-    shifter_bit sb_6(.in(sb_out[7]), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[6]) );
-    shifter_bit sb_5(.in(sb_out[6]), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[5]) );
-    shifter_bit sb_4(.in(sb_out[5]), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[4]) );
-    shifter_bit sb_3(.in(sb_out[4]), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[3]) );
-    shifter_bit sb_2(.in(sb_out[3]), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[2]) );
-    shifter_bit sb_1(.in(sb_out[2]), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[1]) );
-    shifter_bit sb_0(.in(sb_out[1]), .load_val(load_val), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[0]) );
+    shifter_bit sb_7(.in(ASR), .load_val(load_val), .shift(shift_d), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[7]) );
+    shifter_bit sb_6(.in(sb_out[7]), .load_val(load_val), .shift(shift_d), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[6]) );
+    shifter_bit sb_5(.in(sb_out[6]), .load_val(load_val), .shift(shift_d), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[5]) );
+    shifter_bit sb_4(.in(sb_out[5]), .load_val(load_val), .shift(shift_d), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[4]) );
+    shifter_bit sb_3(.in(sb_out[4]), .load_val(load_val), .shift(shift_d), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[3]) );
+    shifter_bit sb_2(.in(sb_out[3]), .load_val(load_val), .shift(shift_d), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[2]) );
+    shifter_bit sb_1(.in(sb_out[2]), .load_val(load_val), .shift(shift_d), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[1]) );
+    shifter_bit sb_0(.in(sb_out[1]), .load_val(load_val), .shift(shift_d), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[0]) );
   end
 
   assign Q = sb_out[7:0];
