@@ -1,4 +1,4 @@
-// CSCB58 Starflux project - ship movement mechanics
+// CSCB58 Starflux project - bullet mechanics
 // By: Saskia Tjioe, William Granados, and Venkada Prasad
 // -----------------------------------------------------------------
 
