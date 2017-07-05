@@ -8,7 +8,7 @@ Software: Quartus Prime
 
 Hardware: DE2-115 Altera board
 
-# Set-up
+### Set-up
 1. Open Quartus
 2. Put in the code for Starflux and import the pin assignments
 3. Connect the board to the computer
