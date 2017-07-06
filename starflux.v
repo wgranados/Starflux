@@ -60,7 +60,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	wire [2:0] colour;
 	wire [7:0] x;
 	wire [6:0] y;
-	wire writeEn;
+	wire writeEn, enable;
 
 	// Create an Instance of a VGA controller - there can be only one!
 	// Define the number of colours as well as the initial background
@@ -92,6 +92,18 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
     // Instansiate datapath
     wire ld_x, ld_y, ld_col;
 
+    // Instansiate FSM control
+	 control C0(
+        .clk(CLOCK_50),
+        .resetn(KEY[0]),
+        .go_load(KEY[1]),
+        .go_draw(KEY[3]),
+        .ld_x(ld_x),
+        .ld_y(ld_y),
+        .ld_col(ld_col),
+        .writeEn(writeEn)
+    );
+
     datapath d0(
         .clk(CLOCK_50),
         .resetn(resetn),
@@ -100,27 +112,11 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
         .ld_x(ld_x), 
         .ld_y(ld_y), 
         .ld_col(ld_col),
-		  .enable(writeEn),
+        .enable(writeEn),
         .x_out(x),
         .y_out(y),
         .col_out(colour)
     );
-    // Instansiate FSM control
-	 control C0(
-        .clk(CLOCK_50),
-        .resetn(KEY[0]),
-
-        .go_load(KEY[1]),
-        .go_draw(KEY[3]),
-        
-        .ld_x(ld_x),
-        .ld_y(ld_y),
-        .ld_col(ld_col),
-        .writeEn(writeEn)
-    );
-	hex_decoder H0(.hex_digit(x[3:0]), .segments(HEX0));
-	hex_decoder H1(.hex_digit(y[3:0]), .segments(HEX1));
-
 
 
 endmodule
@@ -128,17 +124,13 @@ endmodule
 
 
 module control(clk, resetn, go_load, go_draw, ld_x, ld_y, ld_col, writeEn);
+	input clk; // normal 50 Mhz clock passed by de2 board
+	input resetn; // reset signal given by KEY[0]
+	input go_load, go_draw;// state signals given by KEY[1] and KEY[3] 
+	output reg ld_x, ld_y, ld_col; // state register values 
+    output reg writeEn; // write signal to vga screen
 
-	// this control must be able to take in the inputs for
-	// x, y, and colour for the control x, y, and colour signals
-	input clk;
-	input resetn;
-	input go_load, go_draw;
-   output reg writeEn;
-
-	output reg  ld_x, ld_y, ld_col;
-
-    reg [3:0] current_state, next_state;
+    reg [3:0] current_state, next_state; // state map for our FSM
 	 
     localparam  S_LOAD_X         = 5'd0,
                 S_LOAD_X_WAIT    = 5'd1,
@@ -146,91 +138,83 @@ module control(clk, resetn, go_load, go_draw, ld_x, ld_y, ld_col, writeEn);
                 S_LOAD_Y_WAIT    = 5'd3,
                 S_LOAD_COL       = 5'd4,
                 S_LOAD_COL_WAIT  = 5'd5,
-                S_DRAW           = 5'd6,
-					 S_DRAW_WAIT      = 5'd7;
+                S_DRAW           = 5'd6;
 
-    // Next state logic aka our state table
-		// just follow the state table made in the pre-lab
+    // State table for the following steps
+    // 1) load 7 bit value from SW[6:0] to register X
+    // 2) load 7 bit value from SW[6:0] to register Y
+    // 3) load 3 bit value from SW[9:7] to register colour
     always@(*)
-    begin: state_table
-            case (current_state)
-                S_LOAD_X: next_state = go_load ? S_LOAD_X_WAIT : S_LOAD_X; // Loop in current state until value is input
-                S_LOAD_X_WAIT: next_state = go_load ? S_LOAD_X_WAIT : S_LOAD_Y; // Loop in current state until go signal goes low
-                S_LOAD_Y: next_state = go_load ? S_LOAD_Y_WAIT : S_LOAD_Y; // Loop in current state until value is input
-                S_LOAD_Y_WAIT: next_state = go_load? S_LOAD_Y_WAIT : S_LOAD_COL; // Loop in current state until go signal goes low
-                S_LOAD_COL: next_state = go_load ? S_LOAD_COL_WAIT : S_LOAD_COL; // Loop in current state until value is input
-                S_LOAD_COL_WAIT: next_state = go_load ? S_LOAD_COL_WAIT : S_DRAW; // Loop in current state until go signal goes low
-                S_DRAW: next_state = go_draw ? S_DRAW_WAIT : S_DRAW; // Loop in current state until value is input
-					 S_DRAW_WAIT: next_state = go_draw ? S_DRAW_WAIT: S_LOAD_X;
-				default:     next_state = S_LOAD_X;
+    begin
+        case (current_state)
+            S_LOAD_X:        next_state = go_load ? S_LOAD_X_WAIT : S_LOAD_X;    // Loop in current state until value is input
+            S_LOAD_X_WAIT:   next_state = go_load ? S_LOAD_X_WAIT : S_LOAD_Y;    // Loop in current state until go signal goes low
+            S_LOAD_Y:        next_state = go_load ? S_LOAD_Y_WAIT : S_LOAD_Y;    // Loop in current state until value is input
+            S_LOAD_Y_WAIT:   next_state = go_load ? S_LOAD_Y_WAIT : S_LOAD_COL;  // Loop in current state until go signal goes low
+            S_LOAD_COL:      next_state = go_load ? S_LOAD_COL_WAIT : S_LOAD_COL;// Loop in current state until value is input
+            S_LOAD_COL_WAIT: next_state = go_load ? S_LOAD_COL_WAIT : S_DRAW;    // Loop in current state until go signal goes low
+            S_DRAW:          next_state = go_draw ? S_LOAD_X: S_DRAW;            // Loop in current state until value is input
+            default:         next_state = S_LOAD_X;
         endcase
-    end // state_table
+    end 
 
 
-    // Output logic aka all of our datapath control signals
-	// this is for control x, y, and colour
+    // Output logic to our datapath, 
+    // here we control x, y, and colour, and set writeEn to 1'b1 
+    // in out S_DRAW state(for VGA screen)
     always @(*)
-    begin: enable_signals
-        // By default make all our signals 0
+    begin
         ld_x = 1'b0;
         ld_y = 1'b0;
         ld_col = 1'b0;
-		  writeEn = 1'b0;
+		writeEn = 1'b0;
         case (current_state)
-            S_LOAD_X: begin
-                ld_x = 1'b1;
-                end
-            S_LOAD_Y: begin
-                ld_y = 1'b1;
-                end
-            S_LOAD_COL: begin
-                ld_col = 1'b1;
-                end
-            S_DRAW: begin
-                writeEn = 1'b1;
-                end
-				S_DRAW_WAIT: begin
-                writeEn = 1'b1;
-            end
+            S_LOAD_X:   ld_x = 1'b1;
+            S_LOAD_Y:   ld_y = 1'b1;
+            S_LOAD_COL: ld_col = 1'b1;
+            S_DRAW:     writeEn = 1'b1;
         endcase
-    end // enable_signals
+    end 
 
-    // current_state registers
     always@(posedge clk)
-    begin: state_FFs
+    begin
         if(!resetn)
             current_state <= S_LOAD_X;
         else
             current_state <= next_state;
-    end // state_FFS
+    end 
+
 endmodule
 
 
-module datapath(
-    input clk,
-    input resetn,
-    input [2:0] colour_in,
-    input [7:0] coord_in,
-    input ld_x, ld_y, ld_col,
-	 input enable,
-    output [7:0]x_out,
-    output [6:0]y_out,
-    output [2:0]col_out
-    );
+module datapath(clk, resetn, colour_in, coord_in,
+                ld_x, ld_y, ld_col, enable, 
+                x_out, y_out, col_out);
+    input clk; // default 50mhz clock
+    input resetn; // value given from KEY[0]
+    input [2:0] colour_in; // register value given from SW[9:7]
+    input [6:0] coord_in; // regster value given from SW[6:0]
+    input ld_x, ld_y, ld_col; // state values given from datapath 
+    input enable; // write enable signal decided by datapath
 
-    // input registers
-    reg [7:0] x;
-    reg [6:0] y;
-    reg [2:0] col;
+    output [7:0]x_out;   // output  value for x to write to screen
+    output [6:0]y_out;   // output value for  y to write to screen
+    output [2:0]col_out; // output value for colour to write to screen
 
-    // Registers x, y, col with respective input logic
-    always@(posedge clk) begin
-        if(!resetn) begin
+    reg [7:0] x;   // 7 bit value from SW[6:0], but we have to concatenate to 8
+    reg [6:0] y;   // 7 bit value from SW[6:0]
+    reg [2:0] col; // 3 bit value from SW[9:7]
+
+    always@(posedge clk) 
+    begin
+        if(!resetn) 
+        begin
             x <= 8'b0;
             y <= 8'b0;
             col <= 3'b0;
         end
-        else begin
+        else 
+        begin
             if(ld_x)
                 x <= {1'b0,  coord_in}; // concatinate to 8 bits with 0 in MSB
             if(ld_y)
@@ -243,8 +227,9 @@ module datapath(
     reg [1:0]cnt_x, cnt_y;
 
     // counting for x
-    always @(posedge clk) begin
-        if (resetn)
+    always @(posedge clk) 
+    begin
+        if (!resetn)
             cnt_x <= 2'b00;
         else if (enable) begin 
             cnt_x <= cnt_x + 1'b1; // wraps around on 2'b11
@@ -254,8 +239,9 @@ module datapath(
     assign y_enable = (cnt_x == 2'b11) ? 1 : 0;
     
     // counter for y
-    always @(posedge clk) begin
-        if (resetn)
+    always @(posedge clk) 
+    begin
+        if (!resetn)
             cnt_y <= 2'b00;
         else if (enable) begin
             cnt_y <= cnt_y + 1'b1; // wraps around on 2'b11
@@ -270,28 +256,3 @@ module datapath(
 endmodule
 
 
-module hex_decoder(hex_digit, segments);
-    input [3:0] hex_digit;
-    output reg [6:0] segments;
-   
-    always @(*)
-        case (hex_digit)
-            4'h0: segments = 7'b100_0000;
-            4'h1: segments = 7'b111_1001;
-            4'h2: segments = 7'b010_0100;
-            4'h3: segments = 7'b011_0000;
-            4'h4: segments = 7'b001_1001;
-            4'h5: segments = 7'b001_0010;
-            4'h6: segments = 7'b000_0010;
-            4'h7: segments = 7'b111_1000;
-            4'h8: segments = 7'b000_0000;
-            4'h9: segments = 7'b001_1000;
-            4'hA: segments = 7'b000_1000;
-            4'hB: segments = 7'b000_0011;
-            4'hC: segments = 7'b100_0110;
-            4'hD: segments = 7'b010_0001;
-            4'hE: segments = 7'b000_0110;
-            4'hF: segments = 7'b000_1110;   
-            default: segments = 7'h7f;
-        endcase
-endmodule
