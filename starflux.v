@@ -53,14 +53,43 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	output [9:0] VGA_G;	 			//	VGA Green[9:0]
 	output [9:0] VGA_B;   			//	VGA Blue[9:0]
 	
-	wire resetn;
-	assign resetn = KEY[0];
+
+    // Game related signals, here we will give useful names to the main 
+    // signals which will interact with our starflux game
+
+    // input related signals
+    wire shoot = SW[0]; // tells our game to shoot bullets from our ship
+    wire pause = SW[1]; // tells our game to pause our current state
+    wire reset = SW[2]; // tells our game to start from the beginning state
+
+    wire right = ~KEY[0]; // tells our game to move our ship right
+    wire down  = ~KEY[1]; // tells our game to move our ship down
+    wire up    = ~KEY[2]; // tells our game to move our ship up
+    wire left  = ~KEY[3]; // tells our game to move our ship left 
+
+
+    assign LEDR[0] = shoot;
+
+
+    // game logic related signals
+    reg [7:0]ship_health;  // 8 bit value, we're to display lower four bits on 
+                           // HEX6, and upper four bits on HEX7
+    wire [7:0]gun_cooldown; // 8 bit value, we're to display lower four bits on 
+                           // HEX4 and upper four bits HEX5
+
+    reg [7:0]current_highscore; // 8 bit value, we're to display on lower four
+                                // bits on HEX3 and upper four bits on HEX2
+
+    reg [7:0]alltime_highscore; // 8 bit value, we're to display on lower four
+                                // bits on HEX1 and upper four bits on HEX0
+
+    // vga related signals
 
 	// Create the colour, x, y and writeEn wires that are inputs to the controller.
 	wire [2:0] colour;
 	wire [7:0] x;
 	wire [6:0] y;
-	wire writeEn, enable;
+	wire writeEn;
 
 	// Create an Instance of a VGA controller - there can be only one!
 	// Define the number of colours as well as the initial background
@@ -86,12 +115,20 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 		defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
 		defparam VGA.BACKGROUND_IMAGE = "black.mif";
 
-	// Put your code here. Your code should produce signals x,y,colour and writeEn/plot
-	// for the VGA controller, in addition to any other functionality your design may require.
+    // handles logic for  gun cooldown
+	gun_cooldown_handler gc(
+		.clock(CLOCK_50),
+		.shoot(shoot),
+		.reset(reset),
+		.gun_cooldown_counter(gun_cooldown)
+	);
+	
+	hex_decoder_always h4(.hex_digit(gun_cooldown[3:0]), .segments(HEX4));
+	hex_decoder_always h5(.hex_digit(gun_cooldown[7:4]), .segments(HEX5));
 
     // Instansiate datapath
     wire ld_x, ld_y, ld_col;
-
+	 
     // Instansiate FSM control
 	 control C0(
         .clk(CLOCK_50),
@@ -125,7 +162,7 @@ endmodule
 
 module control(clk, resetn, go_load, go_draw, ld_x, ld_y, ld_col, writeEn);
 	input clk; // normal 50 Mhz clock passed by de2 board
-	input resetn; // reset signal given by KEY[0]
+	input resetn; // reset signal giHEX2ven by KEY[0]
 	input go_load, go_draw;// state signals given by KEY[1] and KEY[3] 
 	output reg ld_x, ld_y, ld_col; // state register values 
     output reg writeEn; // write signal to vga screen

@@ -54,19 +54,3 @@ module hex_decoder_always(hex_digit, segments);
         endcase
 endmodule
 
-module hex_decoder(A,B,C,D,H);
-    input A;
-    input B;
-    input C;
-    input D;
-    output [6:0]H;
-
-    assign H[0] = (B | D) & (A | ~C) & (~B | ~C) & (~A | D) & (A | ~B | ~D) & (~A | B | C);
-    assign H[1] = (A | B) & (B | D) & (A | C | D) & (A | ~C | ~D) & (~A | C | ~D);
-    assign H[2] = (A | C) & (A | ~D) & (C | ~D) & (A | ~B) & (~A | B);
-    assign H[3] = (~A | C) & (A | B | D) & (B | ~C | ~D) & (~B | C | ~D) & (~B | ~C | D);
-    assign H[4] = (B | D) & (~C | D) & (~A | ~C) & (~A | ~B); 
-    assign H[5] = (C | D) & (~B | D) & (~A | B) & (~A | ~C) & (A | ~B | C);
-    assign H[6] = (B | ~C) & (~C | D) & (~A | B) & (~A | ~D) & (A | ~B | C);
-
-endmodule
