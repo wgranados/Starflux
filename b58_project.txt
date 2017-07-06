@@ -389,12 +389,5 @@ https://github.com/justinli1/CompSci-Final-2015
 Updates
 -------
 
-<Example update. Delete this and add your own updates after each lab session>
-Week 1: We built the hardware and tested the sensors. The distance sensor we had intended to use didn't work as
-expected (wasn't precise enough at further distances, only seems to work accurately within 5-10cm), so instead
-we've decided to change the project to use a light sensor instead. Had trouble getting the FSM to work (kept
-getting stuck in state 101, took longer to debug than expected), so we may not be able to add the
-high score feature, have updated that in the project description as (optional).
-
 Week 1: We built the cooldown timer and also tested the bullets. Unfortunately, the bullets were completely non-functional despite best efforts, so we will work extra hours to fix the issue, as there is no game without the weapon. However, the cool down timer and score are working, just need to speed up the clock and add a narrower cap to prevent the player from waiting so long for their gun to cool down. Of course, we will have to at this point double book to make time for the next lab session. We have also changed features to make the gun and bullet mechanics easier, such as simpler bullet mechanics for the enemy ships that will also act as a series of boss fights rather than a swarm.
 
