@@ -36,7 +36,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	input CLOCK_50; // Default 50 Mhz clock on De2 board
 	input [9:0] SW; // Use SW[0] as firing, SW[1] as pause, SW[2] as reset
 	input [3:0] KEY; // use KEY[0:3] as right, down, up, left respectively 
-    output [17:0] LEDR; // no use for this yet, may be bonus
+    output [9:0] LEDR; // no use for this yet, may be bonus
     output [6:0] HEX0, HEX1, // Display all time high score on HEX[0:1]
                  HEX2, HEX3, // Display current high score on HEX[2:3]
                  HEX4, HEX5, // Display gun's cooldown timer on HEX[4:5]
@@ -224,32 +224,30 @@ module datapath(clk, resetn, colour_in, coord_in,
         end
     end
 
-    reg [1:0]cnt_x, cnt_y;
+    reg [1:0]x_offset, y_offset;
 
     // counting for x
     always @(posedge clk) 
     begin
         if (!resetn)
-            cnt_x <= 2'b00;
-        else if (enable) begin 
-            cnt_x <= cnt_x + 1'b1; // wraps around on 2'b11
-        end
+            x_offset <= 2'b00;
+        else 
+            x_offset <= x_offset + 1'b1; // wraps around on 2'b11
     end
 
-    assign y_enable = (cnt_x == 2'b11) ? 1 : 0;
+    assign y_enable = (x_offset == 2'b11) ? 1 : 0;
     
     // counter for y
     always @(posedge clk) 
     begin
         if (!resetn)
-            cnt_y <= 2'b00;
-        else if (enable) begin
-            cnt_y <= cnt_y + 1'b1; // wraps around on 2'b11
-        end
+            y_offset <= 2'b00;
+        else if(y_enable)
+            y_offset <= y_offset + 1'b1; // wraps around on 2'b11
     end
 
-    assign x_out = x + cnt_x;
-    assign y_out = y + cnt_y;
+    assign x_out = x + x_offset;
+    assign y_out = y + y_offset;
     assign color_out = col;
     
 
