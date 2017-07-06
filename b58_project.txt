@@ -119,5 +119,10 @@ https://github.com/justinli1/CompSci-Final-2015
 Updates
 -------
 
-Week 1: We built the cooldown timer and also tested the bullets. Unfortunately, the bullets were completely non-functional despite best efforts, so we will work extra hours to fix the issue, as there is no game without the weapon. However, the cool down timer and score are working, just need to speed up the clock and add a narrower cap to prevent the player from waiting so long for their gun to cool down. Of course, we will have to at this point double book to make time for the next lab session. We have also changed features to make the gun and bullet mechanics easier, such as simpler bullet mechanics for the enemy ships that will also act as a series of boss fights rather than a swarm.
+Week 1: We built the cooldown timer and also tested the bullets. Unfortunately, the bullets were completely non-functional
+despite best efforts, so we will work extra hours to fix the issue, as there is no game without the weapon. However, the cool
+down timer and score are working, just need to speed up the clock and add a narrower cap to prevent the player from waiting so
+long for their gun to cool down. Of course, we will have to at this point double book to make time for the next lab session. We
+have also changed features to make the gun and bullet mechanics easier, such as simpler bullet mechanics for the enemy ships that
+will also act as a series of boss fights rather than a swarm.
 
