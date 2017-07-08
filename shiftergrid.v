@@ -1,5 +1,11 @@
 // CSCB58 Starflux project - bullet mechanics
 // By: Saskia Tjioe, William Granados, and Venkada Prasad
+
+// This file takes care of bullet mechanics in regards to
+// collision, such as if the bullet hits another bullet,
+// if the bullet hits the enemy ship, and if the bullet
+// hits the player
+
 // -----------------------------------------------------------------
 
 // NOTE! THIS IS GOING TO HAVE TO OUTPUT TOWARD THE VGA AS A SHOT!
@@ -8,38 +14,92 @@
 // This module handles the bullets, which is made of other modules
 // that are called in this module
 // bullets will only move in the direction they were shot at
-module shifter_grid(SW, Q);
+module shiftergrid(SW, CLOCK_50, Q);
   // have switch 0 be what allows the player to fire their weapon
   // at this point, we have yet to have something that will allow
   // enemy fire to be triggered, unless you want it to be on all the time
+  input [2:0] SW; // SW[2] for the reset, SW[0] for firing the gun
+  input CLOCK_50;
 
-  input [17:0] SW; // SW[17] for the reset, SW[0] for firing the gun
+  output Q; // The output is displayed onto the VGA
+  
+  // create the bullet mechanics
+  bullets b(
+    .sw_select(SW[0]),
+	 .load_n(),
+	 .reset_n(SW[2]),
+	 .clock(CLOCK_50),
+	 .Q(Q));
 
-  // set up wire outputs for the shifters
-  wire [7:0]Q;
+endmodule
 
-  // create the shifters that will cover the entire screen
-  // Create the shifter that will shift the player bullets up
-  shift_up s_up(
-    .load_val(SW[0]),
-    .load_n(),
-    .shift_u(),
-    .ASR(),
-    .clk(),
-    .reset(),
-    .Q(Q));
+// -----------------------------------------------------------------
 
-  // Create the shifter that will allow enemy bullets to move down screen
-  shift_down s_down(
-    .load_val(SW[0]),
-    .load_n(),
-    .shift_d(),
-    .ASR(),
-    .clk(),
-    .reset(),
-    .Q(Q)
-    );
+// This module creates the bullets for the game
+module bullets(sw_select, load_n, reset_n, clock, Q);
+  input sw_select; // switch to fire gun
+  input load_n;
+  input reset_n;
+  input clock; // clock signal from the CLOCK_50
+  output Q;
+  reg [0:0]shoot; // shoot is a one bit value
+  
+  // FROM THE MORSE CODE MODULE, case unchanged; need modification
+  always @(*)
+  begin
+    case(sw_select) // select what to put into the shifter module
+	 1'b0: shoot = 1'b0; // don't fire a bullet 
+    1'b1: shoot = 1'b1; // fire a bullet
+    default: shoot = 1'b0; // probably won't reach this but okay
+	 endcase
+  end
+  
+  wire [0:0] rd_out;
+  // create the rate divide, which will always be on but have a reset
+  rate_divider rd(
+    .enable(1), 
+	 .countdown_start(1'b1), 
+	 .clock(clock), 
+	 .reset_n(reset_n), 
+	 .q(rd_out));
+  
+  // send to the shifter for the bullet to move when fired by the player
+  shift_up su(
+    .load_val(sw_select[0]),
+	 .load_n(load_n),
+	 .shift_u(enable),
+	 .ASR(0),
+	 .clk(rd),
+	 .reset(reset_n),
+	 .Q(Q));
+	 
+  // create a shifter that allows enemy bullets to move
+  // the loading of values, like enable in the rate divider, will always be on
+  shift_down sd(
+    .load_val(1),
+	 .load_n(load_n),
+	 .shift_u(enable),
+	 .ASR(0),
+	 .clk(rd),
+	 .reset(reset_n),
+	 .Q(Q));
 
+endmodule
+
+// ------------------------------------------------------------------
+
+// This module creates a demultiplexer for the load_n for shifters
+module demux1to4(data_in, select, data_out);
+  input data_in;
+  input [1:0]select;
+  output [3:0]data_out;
+  
+  assign data_out[3] = data_in & (~select[0]) & (~select[1]);
+  assign data_out[2] = data_in & (~select[0]) & select[1];
+  assign data_out[1] = data_in & select[0] & (~select[1]);
+  assign data_out[0] = data_in & select[0] & select[1];
+
+  
 endmodule
 
 // ------------------------------------------------------------------
@@ -75,12 +135,14 @@ endmodule
 // ------------------------------------------------------------------
 
 // This module will take a rate divider to act as a clock for the register
+// In this case, a bullet is to be fired once every second while the 
+// switch to fire the weapon is on
 module rate_divider(enable, countdown_start, clock, reset_n, q);
   input enable; // enable signal
   input reset_n; // reset signal
   input clock; // clock signal given from CLOCK_50
-  input [27:0]countdown_start; // value that this counter should start at
-  output reg [27:0]q; // output register
+  input [1:0]countdown_start; // value that this counter should start at
+  output reg [1:0]q; // output register
 
   // start counting down from countdown_start all the way to 0
   always @(posedge clock)
