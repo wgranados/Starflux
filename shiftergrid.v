@@ -30,6 +30,13 @@ module shiftergrid(SW, CLOCK_50, Q);
     .resetn(),
     .data_out());
 
+  // create the y-shift for the enemy bullets
+  shift_down enemy(
+    .data_in(),
+    .clk(),
+    .resetn(),
+    .data_out());
+
   // create the bullet mechanics
   bullet_collision b(
     .collide(),
@@ -69,7 +76,7 @@ endmodule
 // This module takes care of the bullet physics and collision
 // It only takes care of collisions between player bullets and the enemies
 module bullet_collision(bullets, enemy, player, location, reset_n, clock, Q);
-  input [117:0]bullets; // checks if any of the bullets were part of collision
+  input [160:0]bullets; // checks if any of the bullets were part of collision
   input enemy; // the enemy's location
   input player; // the player's location
   input location; // where on screen the collision has occurred
@@ -82,7 +89,7 @@ module bullet_collision(bullets, enemy, player, location, reset_n, clock, Q);
   always @ (posedge clk)
   begin
     // check if any of the bullets hit anything
-    for (i = 0, i < 118, i = i + 1) begin
+    for (i = 0, i < 160, i = i + 1) begin
       // if the bullet hit an enemy
       if (bullets[i] == location && location == enemy)
         enemy = // have the enemy destroyed
@@ -126,8 +133,8 @@ endmodule
 // The following module is a shift register that will allow a bullet to
 // move in the direction it was shot at, and move to the end of the screen
 
-// This module is the shift register that will allow the bullet to go
-// in the y direction, such as up and down
+// This module is the shift register that will allow the bullet to go up
+// since this is in regards to the player's bullets
 module shift_up(data_in, clk, resetn, data_out);
   input data_in;
   input clk;
@@ -148,5 +155,29 @@ module shift_up(data_in, clk, resetn, data_out);
   end
 
   assign Q = d_out;
+
+endmodule
+
+// The following module will allow the creation of a shifter that
+// tracks the movement of enemy bullets
+module shift_down(data_in, clk, resetn, data_out);
+  input data_in;
+  input clk;
+  input resetn;
+  output [120:0]data_out;
+  reg [120:0]data_out;
+  wire [120:0]d_out;
+  wire resetn;
+
+  // create the shifter bits that will allow bullets to move down
+  always @ (posedge clk)
+  begin
+    sb_out <= load_val;
+    for (i = 119, i <= 0, i = i - 1) begin
+      sb_out[i] <= sb_out[i + 1]
+      end
+  end
+
+  assign data_out = d_out;
 
 endmodule
