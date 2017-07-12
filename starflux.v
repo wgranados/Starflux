@@ -69,12 +69,16 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 
 
     assign LEDR[0] = shoot;
+	 assign LEDR[1] = right;
+	 assign LEDR[2] = down;
+	 assign LEDR[3] = up;
+	 assign LEDR[4] = left;
 
 
     // game logic related signals
     reg [7:0]ship_health;  // 8 bit value, we're to display lower four bits on 
                            // HEX6, and upper four bits on HEX7
-    wire [7:0]gun_cooldown; // 8 bit value, we're to display lower four bits on 
+    wire [3:0]gun_cooldown; // 8 bit value, we're to display lower four bits on 
                            // HEX4 and upper four bits HEX5
 
     reg [7:0]current_highscore; // 8 bit value, we're to display on lower four
@@ -124,7 +128,6 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	);
 	
 	hex_decoder_always h4(.hex_digit(gun_cooldown[3:0]), .segments(HEX4));
-	hex_decoder_always h5(.hex_digit(gun_cooldown[7:4]), .segments(HEX5));
 
     // Instansiate datapath
     wire ld_x, ld_y, ld_col;
