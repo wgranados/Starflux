@@ -21,11 +21,11 @@ Hardware: DE2-115 Altera board
 5. Enjoy the game!
 
 # Authors
-William Granados - code
+William Granados - code (movements and collision mechanics)
 
-Venkada Prasad - code
+Venkada Prasad - code (health)
 
-Saskia Selestyna Tjioe - code
+Saskia Selestyna Tjioe - code (VGA output)
 
 # License
 This project is licensed under the BSD-3 License; see the LICENSE file for details.
