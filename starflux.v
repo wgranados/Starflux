@@ -88,6 +88,8 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
     wire [7:0]alltime_highscore; // 8 bit value, we're to display on lower four
                                 // bits on HEX1 and upper four bits on HEX0
 
+	reg [160:0]shifter_grid[120:0];
+
     // vga related signals
 
 	// Create the colour, x, y and writeEn wires that are inputs to the controller.
@@ -126,6 +128,15 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 		.shoot(shoot),
 		.reset(reset),
 		.gun_cooldown_counter(gun_cooldown)
+	);
+
+	shifter_grid sg(
+		.reset(reset),
+		.shoot(shoot),
+		.clock(CLOCK_5), 
+	    .Q(shifter_grid), 
+		.player_x(x), 
+		.enemy_x(y)
 	);
 
     // handles logic for moving left and right
