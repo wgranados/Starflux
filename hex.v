@@ -1,16 +1,15 @@
-module hex(HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HEX7, KEY, SW, load_all_time, load_score,CLOCK_50,LEDR, LEDG);
-	output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HEX7;
+module hex(HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, load_score, KEY, SW, CLOCK_50, LEDG, LEDR);
+	output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
 	input [3:0] KEY;
-	output [17:9] LEDR;
+	input [3:0] SW;
+	output [17:0] LEDR;
 	output [8:0] LEDG;
-	input [7:0] load_all_time; // all time score.
-	input [7:0] load_score;
-	input [3:0] SW;	
+   input [7:0] load_score;
 	input CLOCK_50;
-	all_time a(.hex0(HEX0), .hex1(HEX1), .load_current_score(8'b00000101) , .resetn(KEY[0]), .clk(~KEY[1]));
+	all_time a(.hex0(HEX0), .hex1(HEX1), .load_current_score(load_score) , .resetn(KEY[0]), .clk(~KEY[1]));
 	current_score c(.hex2(HEX2), .hex3(HEX3),.resetn(KEY[0]), .clk(~KEY[3]));
-	health h(.hex6(HEX6), .hex7(HEX7), .clk(~KEY[2]), .resetn(KEY[0]));
-	gameover g(.ledr(LEDR), .ledg(LEDG), .clk(CLOCK_50), .resetn(KEY[0]) );
+	health h(.hex5(HEX5), .clk(~KEY[2]), .resetn(KEY[0]));
+	gameover g(.ledr(LEDR), .ledg(LEDG), .clk(~KEY[3]), .resetn(KEY[0]));
 endmodule
 
 module all_time(hex0, hex1, load_current_score, resetn, clk);
@@ -53,6 +52,28 @@ module current_score(hex2, hex3, resetn, clk);
 	hex_decoder h2(.hex_digit(current_score[3:0]), .segments(hex2));
 endmodule
 
+
+
+module health(hex5, clk, resetn);
+	output [6:0]hex5;
+	input clk;
+	input resetn;
+	reg [3:0] health;
+	
+	always@(posedge clk) begin
+		if(!resetn) 
+	            health <= 4'b1111; // setting health to F.
+	   else begin
+			casez(health)
+				 4'b0: health <= 4'b1111; // increasing the current score.
+				 4'b????:health <= health - 1;
+		       default: health <= 4'b1111;
+			endcase
+	   end
+    end
+	hex_decoder h5(.hex_digit(health[3:0]), .segments(hex5));
+endmodule
+
 module gameover(ledr, ledg, clk, resetn);
 	output [17:0]ledr;
 	output [8:0] ledg;
@@ -76,48 +97,30 @@ module gameover(ledr, ledg, clk, resetn);
 				begin
 					redout <= 18'b100010001000100010;
 					greenout <= 9'b100010001;
-				18'100010001000100010:
+				end
+				18'b100010001000100010:
+				begin
 					redout <= 18'b100000001000000010;
 					greenout <= 9'b100000001;
-				18'10000000100000001:
+				end
+				18'b10000000100000001:
+				begin
 					redout <= 18'b0;
 					greenout <= 9'b0;
+				end
 				default: 
 				begin 
 					redout <= 18'b0;
 					greenout <= 9'b0;
 				end
+			endcase
+		end
 	end
 	assign ledr = redout;
 	assign ledg = greenout;
 endmodule
 
 
-
-module health(hex6, hex7, clk, resetn);
-	output [6:0]hex6;
-	output [6:0]hex7;
-	input clk;
-	input resetn;
-	reg [7:0] health;
-	
-	always@(posedge clk) begin
-		if(!resetn) begin
-	            health <= 8'b1111_1111; // setting health to F.
-	        end
-	        else begin
-			casez(health)
-				 8'b0:
-					health <= 8'b1111_1111; // increasing the current score.
-				 8'b????????:
-					health <= health - 1;
-				default:
-					health <= 8'b1111_1111;
-	        end
-    	end
-	hex_decoder h7(.hex_digit(health[7:4]), .segments(hex7)); // displaying it on the hexes.
-	hex_decoder h6(.hex_digit(health[3:0]), .segments(hex6));
-endmodule
 
 module hex_decoder(hex_digit, segments);
     input [3:0] hex_digit;
