@@ -22,7 +22,9 @@ Hardware: DE2-115 Altera board
 
 # Authors
 William Granados - code 
+
 Venkada Prasad - code 
+
 Saskia Selestyna Tjioe - code 
 
 # License
