@@ -74,6 +74,7 @@ game have been met.
 What is your backup plan if things don’t work out as planned?
 
 If things go off course, we are willing to work extra hours or remove some features
+
 of the game, such as the health bar or the cool down timer. We can also tone down
 certain features, such as having enemy ships continue down one column down the
 screen instead of giving them dodging capabilities.
@@ -110,6 +111,11 @@ Attributions
 ------------
 Provide a complete list of any external resources your project used (attributions should also be included in your
 code).
+
+VGA_font_rom.v was based off of this source:
+
+ship.v was based off of this code:
+https://github.com/bogini/Pong/blob/master/pong_text.v
 
 Main inspiration for the game.
 https://github.com/justinli1/CompSci-Final-2015
