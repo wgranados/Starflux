@@ -126,3 +126,8 @@ long for their gun to cool down. Of course, we will have to at this point double
 have also changed features to make the gun and bullet mechanics easier, such as simpler bullet mechanics for the enemy ships that
 will also act as a series of boss fights rather than a swarm.
 
+Week 2: We had achieved functionality in the health bar, cooldown timer, and also built the player ship's movement mechanics.
+We have also made the font ROM for the display so that the title can be displayed, and have also built the ship, although it is
+unknown whether the display will work or not. We will test outside of lab hours before the next lab so that we do not waste time
+and only have working code at the ready.
+
