@@ -29,18 +29,17 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 module starflux (CLOCK_50, KEY, SW, LEDR, 
-                 HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HEX7,
+                 HEX0, HEX1, HEX2, HEX3, HEX4, HEX5,
                  VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N,
                  VGA_SYNC_N, VGA_R, VGA_G, VGA_B);
 
 	input CLOCK_50; // Default 50 Mhz clock on De2 board
 	input [9:0] SW; // Use SW[0] as firing, SW[1] as pause, SW[2] as reset
 	input [3:0] KEY; // use KEY[0:3] as right, down, up, left respectively 
-    output [9:0] LEDR; // no use for this yet, may be bonus
+    output [17:0] LEDR; // no use for this yet, may be bonus
     output [6:0] HEX0, HEX1, // Display all time high score on HEX[0:1]
                  HEX2, HEX3, // Display current high score on HEX[2:3]
-                 HEX4, HEX5, // Display gun's cooldown timer on HEX[4:5]
-                 HEX6, HEX7; // Display ship's health on HEX[6:7]
+                 HEX4, HEX5; // Display gun's cooldown timer on HEX[4:5]
 
 	// Declare your inputs and outputs here
 	// Do not change the following outputs
@@ -69,22 +68,24 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 
 
     assign LEDR[0] = shoot;
-	 assign LEDR[1] = right;
-	 assign LEDR[2] = down;
-	 assign LEDR[3] = up;
-	 assign LEDR[4] = left;
+	assign LEDR[1] = right;
+	assign LEDR[2] = down;
+	assign LEDR[3] = up;
+	assign LEDR[4] = left;
+	
+	assign LEDR[17:10] = x;
 
 
     // game logic related signals
-    reg [7:0]ship_health;  // 8 bit value, we're to display lower four bits on 
+    wire [7:0]ship_health;  // 8 bit value, we're to display lower four bits on 
                            // HEX6, and upper four bits on HEX7
     wire [3:0]gun_cooldown; // 8 bit value, we're to display lower four bits on 
                            // HEX4 and upper four bits HEX5
 
-    reg [7:0]current_highscore; // 8 bit value, we're to display on lower four
+    wire [7:0]current_highscore; // 8 bit value, we're to display on lower four
                                 // bits on HEX3 and upper four bits on HEX2
 
-    reg [7:0]alltime_highscore; // 8 bit value, we're to display on lower four
+    wire [7:0]alltime_highscore; // 8 bit value, we're to display on lower four
                                 // bits on HEX1 and upper four bits on HEX0
 
     // vga related signals
@@ -126,59 +127,68 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 		.reset(reset),
 		.gun_cooldown_counter(gun_cooldown)
 	);
+
+    // handles logic for moving left and right
+    movement_handler mv(
+        .clock(CLOCK_50),
+        .right(right),
+        .down(down),
+        .up(up),
+        .left(left),
+        .x_val(x),
+        .y_val(y)
+    );
 	
 	hex_decoder_always h4(.hex_digit(gun_cooldown[3:0]), .segments(HEX4));
 
     // Instansiate datapath
-    wire ld_x, ld_y, ld_col;
+    wire ld_x, ld_y;
 	 
     // Instansiate FSM control
-	 control C0(
+	control C0(
         .clk(CLOCK_50),
-        .resetn(KEY[0]),
-        .go_load(KEY[1]),
-        .go_draw(KEY[3]),
+        .reset(reset),
+        .go(pause),
+        .go_draw(1'b0),
         .ld_x(ld_x),
         .ld_y(ld_y),
-        .ld_col(ld_col),
         .writeEn(writeEn)
     );
 
-    datapath d0(
-        .clk(CLOCK_50),
-        .resetn(resetn),
-        .colour_in(SW[9:7]),
-        .coord_in(SW[6:0]),
-        .ld_x(ld_x), 
-        .ld_y(ld_y), 
-        .ld_col(ld_col),
-        .enable(writeEn),
-        .x_out(x),
-        .y_out(y),
-        .col_out(colour)
-    );
+    //datapath d0(
+    //    .clk(CLOCK_50),
+    //    .resetn(resetn),
+    //    .colour_in(SW[9:7]),
+    //    .coord_in(SW[6:0]),
+    //    .ld_x(ld_x), 
+    //    .ld_y(ld_y), 
+    //    .ld_col(ld_col),
+    //    .enable(writeEn),
+    //    .x_out(x),
+    //    .y_out(y),
+    //    .col_out(colour)
+    //);
 
 
 endmodule
 
 
 
-module control(clk, resetn, go_load, go_draw, ld_x, ld_y, ld_col, writeEn);
+module control(clk, reset, go, go_draw, ld_x, ld_y, writeEn);
 	input clk; // normal 50 Mhz clock passed by de2 board
-	input resetn; // reset signal giHEX2ven by KEY[0]
-	input go_load, go_draw;// state signals given by KEY[1] and KEY[3] 
-	output reg ld_x, ld_y, ld_col; // state register values 
+	input reset; // reset signal given by SW[2] 
+	input go, go_draw;// state signals given SW[1] 
+	output reg [7:0] ld_x, ld_y; // state register values for X and Y
     output reg writeEn; // write signal to vga screen
 
     reg [3:0] current_state, next_state; // state map for our FSM
 	 
-    localparam  S_LOAD_X         = 5'd0,
-                S_LOAD_X_WAIT    = 5'd1,
-                S_LOAD_Y         = 5'd2,
-                S_LOAD_Y_WAIT    = 5'd3,
-                S_LOAD_COL       = 5'd4,
-                S_LOAD_COL_WAIT  = 5'd5,
-                S_DRAW           = 5'd6;
+    localparam  S_START_GAME      = 5'd0,
+                S_DRAW_BACKGROUND = 5'd1,
+                S_DRAW_SHIP       = 5'd2,
+                S_DRAW_ENEMY      = 5'd3,
+                S_DRAW_BULLETS    = 5'd4,
+                S_UPDATE          = 5'd5;
 
     // State table for the following steps
     // 1) load 7 bit value from SW[6:0] to register X
@@ -187,14 +197,13 @@ module control(clk, resetn, go_load, go_draw, ld_x, ld_y, ld_col, writeEn);
     always@(*)
     begin
         case (current_state)
-            S_LOAD_X:        next_state = go_load ? S_LOAD_X_WAIT : S_LOAD_X;    // Loop in current state until value is input
-            S_LOAD_X_WAIT:   next_state = go_load ? S_LOAD_X_WAIT : S_LOAD_Y;    // Loop in current state until go signal goes low
-            S_LOAD_Y:        next_state = go_load ? S_LOAD_Y_WAIT : S_LOAD_Y;    // Loop in current state until value is input
-            S_LOAD_Y_WAIT:   next_state = go_load ? S_LOAD_Y_WAIT : S_LOAD_COL;  // Loop in current state until go signal goes low
-            S_LOAD_COL:      next_state = go_load ? S_LOAD_COL_WAIT : S_LOAD_COL;// Loop in current state until value is input
-            S_LOAD_COL_WAIT: next_state = go_load ? S_LOAD_COL_WAIT : S_DRAW;    // Loop in current state until go signal goes low
-            S_DRAW:          next_state = go_draw ? S_LOAD_X: S_DRAW;            // Loop in current state until value is input
-            default:         next_state = S_LOAD_X;
+            S_START_GAME:      next_state = go ?      S_DRAW_BACKGROUND: S_START_GAME;
+            S_DRAW_BACKGROUND: next_state = go_draw ? S_DRAW_SHIP: S_DRAW_BACKGROUND;
+            S_DRAW_SHIP:       next_state = go_draw ? S_DRAW_ENEMY: S_DRAW_SHIP;
+            S_DRAW_ENEMY:      next_state = go_draw ? S_DRAW_BULLETS: S_DRAW_ENEMY;
+            S_DRAW_BULLETS:    next_state = go_draw ? S_UPDATE: S_DRAW_BULLETS;
+            S_UPDATE:          next_state = go_draw ? S_DRAW_BACKGROUND: S_UPDATE;
+            default:           next_state = S_START_GAME;
         endcase
     end 
 
@@ -204,22 +213,19 @@ module control(clk, resetn, go_load, go_draw, ld_x, ld_y, ld_col, writeEn);
     // in out S_DRAW state(for VGA screen)
     always @(*)
     begin
-        ld_x = 1'b0;
+        ld_x = 8'd80; // start the ship in the middle of the screen
         ld_y = 1'b0;
-        ld_col = 1'b0;
 		writeEn = 1'b0;
         case (current_state)
-            S_LOAD_X:   ld_x = 1'b1;
-            S_LOAD_Y:   ld_y = 1'b1;
-            S_LOAD_COL: ld_col = 1'b1;
-            S_DRAW:     writeEn = 1'b1;
+            S_DRAW_BACKGROUND: writeEn = 1'b1;
+            S_DRAW_SHIP: writeEn = 1'b1;
         endcase
     end 
 
     always@(posedge clk)
     begin
-        if(!resetn)
-            current_state <= S_LOAD_X;
+        if(!reset)
+            current_state <= S_START_GAME;
         else
             current_state <= next_state;
     end 
