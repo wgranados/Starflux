@@ -8,7 +8,8 @@ Student Number: 1002314114
 UofT E-mail Address: william.granadosmatamoros@mail.utoronto.ca
 
 
-Team Member B-------------
+Team Member B
+-------------
 First Name: Saskia Selestyna
 Last Name: Tjioe
 Student Number: 1003279007
@@ -18,7 +19,8 @@ Team Member C (Optional)
 -------------
 First Name: Venkada
 Last Name: Prasad
-Student Number: 1002263953UofT E-mail Address:venkada.prasad@mail.utoronto.ca
+Student Number: 1002263953
+UofT E-mail Address: venkada.prasad@mail.utoronto.ca
 
 Team Member D (Optional)
 -------------
@@ -132,9 +134,11 @@ long for their gun to cool down. Of course, we will have to at this point double
 have also changed features to make the gun and bullet mechanics easier, such as simpler bullet mechanics for the enemy ships that
 will also act as a series of boss fights rather than a swarm.
 
-Week 2: We had achieved functionality in the health bar, cooldown timer, and also built the player ship's movement mechanics.
-We have also made the font ROM for the display so that the title can be displayed, and have also built the ship, although it does not
+Week 2: We had achieved functionality in the health bar, cooldown timer, and also built the player ship's movement mechanics, which
+have been simplified into just left and right movements. We have also made the font ROM for the display so that the title can be displayed, and have also built the ship, although it does not
 display anything due to complications that should be settled over the weekend. We will test outside of lab hours before the next lab so
 that we do not waste time and only have working code at the ready. We have also made the repository for the project public. As the code
-for the font ROM and the VGA have been borrowed from outside sources, they have been added to the Attributions list.
-
+for the font ROM and the VGA have been borrowed from outside sources, they have been added to the Attributions list. Over the next week
+before the next lab, we will work on the enemy ship. It is no longer a swarm, but instead one powerful adversary who will speed up
+with every hit it takes from the player. It's movements will be very simple, only from left to right, and the bullets will come out as
+a constant stream that the player must avoid.
