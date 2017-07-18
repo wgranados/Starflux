@@ -1,15 +1,15 @@
-module hex(HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, load_score, KEY, SW, CLOCK_50, LEDG, LEDR);
+module hex(HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, load_score, resetn, health, current_score, gameover, CLOCK_50, LEDG, LEDR);
 	output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
-	input [3:0] KEY;
+	input resetn;
 	input [3:0] SW;
 	output [17:0] LEDR;
 	output [8:0] LEDG;
    input [7:0] load_score;
 	input CLOCK_50;
-	all_time a(.hex0(HEX0), .hex1(HEX1), .load_current_score(load_score) , .resetn(KEY[0]), .clk(~KEY[1]));
-	current_score c(.hex2(HEX2), .hex3(HEX3),.resetn(KEY[0]), .clk(~KEY[3]));
-	health h(.hex5(HEX5), .clk(~KEY[2]), .resetn(KEY[0]));
-	gameover g(.ledr(LEDR), .ledg(LEDG), .clk(~KEY[3]), .resetn(KEY[0]));
+	all_time a(.hex0(HEX0), .hex1(HEX1), .load_current_score(load_score) , .resetn(resetn), .clk(~KEY[1]));
+	current_score c(.hex2(HEX2), .hex3(HEX3),.resetn(resetn), .clk(current_score));
+	health h(.hex5(HEX5), .clk(health), .resetn(resetn));
+	gameover g(.ledr(LEDR), .ledg(LEDG), .clk(gameover), .resetn(resetn));
 endmodule
 
 module all_time(hex0, hex1, load_current_score, resetn, clk);
