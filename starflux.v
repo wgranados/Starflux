@@ -28,7 +28,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-module starflux (CLOCK_50, KEY, SW, LEDR, 
+module starflux (CLOCK_50, KEY, SW, LEDR, LEDG, 
                  HEX0, HEX1, HEX2, HEX3, HEX4, HEX5,
                  VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N,
                  VGA_SYNC_N, VGA_R, VGA_G, VGA_B);
@@ -37,6 +37,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	input [9:0] SW; // Use SW[0] as firing, SW[1] as pause, SW[2] as reset
 	input [3:0] KEY; // use KEY[0:3] as right, down, up, left respectively 
     output [17:0] LEDR; // no use for this yet, may be bonus
+    output [8:0] LEDG;
     output [6:0] HEX0, HEX1, // Display all time high score on HEX[0:1]
                  HEX2, HEX3, // Display current high score on HEX[2:3]
                  HEX4, HEX5; // Display gun's cooldown timer on HEX[4:5]
@@ -95,6 +96,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	wire [7:0] x;
 	wire [6:0] y;
 	wire writeEn;
+        hex h(.HEX0(HEX0), .HEX1(HEX1), .HEX2(HEX2), .HEX3(HEX3), .HEX4(HEX4), .HEX5(HEX5), .load_score(current_highscore), .resetn(reset), .health(), .current_score(), .gameover(), .CLOCK_50(CLOCK_50), .LEDG(LEDG), .LEDR(LEDR));
 
 	// Create an Instance of a VGA controller - there can be only one!
 	// Define the number of colours as well as the initial background
