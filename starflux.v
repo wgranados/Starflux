@@ -156,7 +156,6 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
         .ld_y(ld_y),
         .writeEn(writeEn)
     );
-
     //datapath d0(
     //    .clk(CLOCK_50),
     //    .resetn(resetn),
