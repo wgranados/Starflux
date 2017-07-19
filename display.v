@@ -11,14 +11,16 @@ module display(clk, reset, user_x, enemy_x, grid, x, y, colour);
 	
 	reg [7:0]counter = 11'b0;
 	wire [6:0]user_y = 7'd0;
-	wire [6:0]enemy_y = 7'd160;
+	wire [6:0]enemy_y = 7'd120;
 	
 	// colours we'll be using for the grid stuff
 	wire [2:0]red = 3'b100;
 	wire [2:0]green = 3'b010;
 	wire [2:0]blue = 3'b001;
 	wire [2:0]black = 3'b000;
-
+	// use this var when we want to clear the screen to
+   // by setting everything to black	
+	reg clear = 1'b0;
 
 	// count from 0 to 160*120-1=19200 and implictly calculate the x,y 
 	// values from the counter. Since X changes every tick, and Y changes 
@@ -31,11 +33,15 @@ module display(clk, reset, user_x, enemy_x, grid, x, y, colour);
 		if(reset)
 			begin
 				counter <= 8'b0;
+				clear <= 1'b1;
 			end
 		else 
 			begin
 			   // draw user ship in red
-				if(x == user_x & y == user_y) begin	
+				if(clear) begin
+					colour <= black;
+				end
+				else if(x == user_x & y == user_y) begin	
 					colour <= red; 
 				end
 				// draw enemy ship in blue
@@ -47,8 +53,10 @@ module display(clk, reset, user_x, enemy_x, grid, x, y, colour);
 				else begin
 					colour <= black;
 				end
-				if(counter == 11'd19200)begin
-					counter <= 11'd0;
+
+				if(counter == 11'd19200) begin
+					counter <= 11'd0; // wrap around to 0
+					clear <= 1'b0; // reset clear to default
 				end
 				counter <= counter + 1'b1;
 			end

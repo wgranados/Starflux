@@ -18,16 +18,16 @@ module control(clk, reset, user_x, enemy_x, shipUpdateEn, gridUpdateEn, writeEn)
                S_UPDATE          = 5'd5;
 
 					
-	 wire [27:0]rd_2hz_out; 
-	 rate_divider rd_2hz(
+	 wire [27:0]rd_16hz_out; 
+	 rate_divider rd_16hz(
 			.enable(1'b1),
-			.countdown_start(28'b10111110101111000001111111), // 24,999,99 in dec
+			.countdown_start(28'b1011111010111100001000), // 3,125,000 in dec
 			.clock(clk),
 			.reset(reset),
-			.q(rd_2hz_out)
+			.q(rd_16hz_out)
 	 );
 	 
-	 wire go = (rd_2hz_out == 28'b0) ? 1:0;
+	 wire go = (rd_16hz_out == 28'b0) ? 1:0;
 				
 	
   
