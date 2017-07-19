@@ -1,60 +1,40 @@
-module shifter_grid(reset, shoot, clock, Q, player_x, enemy_x);
+module shifter_grid(reset, shoot, clock, gridUpdateEn, user_x, enemy_x, grid);
     input reset; // reset the grid from SW[2]
     input shoot; // shoot input from SW[1]
     input clock; // default 50mhz clock input
-    input [7:0]player_x; // players position on the x plane
-    input [7:0]player_y; // players position on the y plane
+	 input gridUpdateEn;
+    input [7:0]user_x; // player's position on the x plane
+	 input [7:0]enemy_x; // enemy's position on the x plane
+    output reg [160*120-1:0]grid; // 2d grid we're doing logic on
 
-    output reg [160:0]Q[120:0]; // 2d grid we're doing logic on
-
-	wire load_val[120:0] = 120'b0;
-    load_val[player_x] = 1'b1;
-    
-	wire [27:0]rd_1hz_out;
-	rate_divider rd_1hz(
-		.enable(1'b1),
-		.countdown_start(28'b10111110101111000001111111), // 49,999,99 in dec
-		.clock(clock),
-		.reset(reset),
-		.q(rd_1hz_out)
-	);
+	 reg [160:0] shifter_grid [120:0];
+	 
+	 // unwrap the shifter grid into something workable
+	 genvar j;
+	 generate
+		for(i = 0;i < 160:i = i+1) begin: grid_unflatten
+			assign shifter_grid[160*i : 160] = grid[i]
+		end
+	 endgenerate
+	 
+	 genvar i;
+	 generate
 	
-	wire shift_right_clock = (rd_1hz_out == 28'b0) ? 1:0;
-
-
-  	shifter shift(
-            .load_val({load_val[0], 159'b0}),
-            .load_n(1'b1),
-            .shift_right(1'b1),
-            .ASR(1'b0),
-            .clk(shift_right_clock),
-            .reset_n(reset),
-            .Q(Q[0]));
-
+		for(i = 0;i < 160;i = i+1) begin: shifter_grids
+			shifter shift_i(
+				.load_val({(i == user_x ? 1:0), 119'b0}),
+				.load_n(1'b1),
+				.shift_right(gridUpdateEn),
+				.ASR(1'b0),
+				.clk(clock),
+				.reset_n(reset),
+				.Q(grid[i])
+			)
+		end
+	 
+	 endgenerate
 
 endmodule
-
-
-module lab_3(SW, LEDR, KEY);
-  input [9:0] SW; // use SW[7:0] as inputs ffor LoadVal[7:0] and SW[9]  as the reset
-  input [3:0] KEY; // use KEY[1] as Load_n input, KEY[2] as ShiftRight input,  KEY[3] as ASR input, and KEY[0] as clock
-  output [9:0] LEDR; // outputs Q[7:0] from shifterbit should be displayed on LEDR[7:0]
-
-  wire [7:0]Q;
-  
-  shifter shift(
-            .load_val(SW[7:0]),
-            .load_n(KEY[1]),
-            .shift_right(~KEY[2]),
-            .ASR(~KEY[3]),
-            .clk(KEY[0]),
-            .reset_n(~SW[9]),
-            .Q(Q));
- 
-  assign LEDR = {2'b00, Q}; // concatenate 2 zero's to Q for LEDR[8], LEDR[9]
-  
-endmodule
-
 
 module mux2to1(x, y, s, m);
   input x; // first value to choose from
@@ -96,24 +76,24 @@ module shifter_bit(in, load_val, shift, load_n, clk, reset_n, out);
   
   // determine's whether to shift the bit or not
   mux2to1 mux_one(
-  .x(out),
-  .y(in),
-  .s(shift),
-  .m(mux_one_out)
+	.x(out),
+	.y(in),
+	.s(shift),
+	.m(mux_one_out)
   );
   // determine's whether to load the value from load_val or from in(from left shifter_bit)
   mux2to1 mux_two(
-  .x(load_val),
-  .y(mux_one_out),
-  .s(load_n),
-  .m(mux_two_out)
+	.x(load_val),
+	.y(mux_one_out),
+	.s(load_n),
+	.m(mux_two_out)
   );
   // determine's logic for what bit should be sent to next shifter_bit module
   flipflop flip_flop(
-  .d(mux_two_out),
-  .q(out),
-  .clock(clk),
-  .reset_n(reset_n)
+	.d(mux_two_out),
+	.q(out),
+	.clock(clk),
+	.reset_n(reset_n)
   );
 endmodule
 
