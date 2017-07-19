@@ -1,7 +1,6 @@
-module movement_handler(clock, right, down, up, left, x_val);
+module movement_handler(clock, right, left, x_val);
     input clock; // 50mhz clock from de2 board
     input right, left; // left, right movement from KEY[3] and KEY[0]
-    input up, down; // currently ignore this for now
     output reg [7:0] x_val; // output values 
 		 
 	 wire [27:0]rd_2hz_out; 

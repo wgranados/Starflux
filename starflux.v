@@ -100,22 +100,23 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	control C0(
         .clk(CLOCK_50),
         .reset(reset),
-		  .shipUpdateEn(shipUpdateEn), gridUpdateEn
+		  .shipUpdateEn(shipUpdateEn), 
+		  .gridUpdateEn(gridUpdateEn),
 		  .writeEn(writeEn)
    );
 	 
    datapath d0(
-        .clk(CLOCK_50),
-        .resetn(resetn),
-        .colour_in(SW[9:7]),
-        .coord_in(SW[6:0]),
-        .ld_x(ld_x), 
-        .ld_y(ld_y), 
-        .ld_col(ld_col),
-        .enable(writeEn),
-        .x_out(x),
-        .y_out(y),
-        .col_out(colour)
+      .clk(CLOCK_50),
+      .reset(reset),
+		.right(right),
+		.left(left),
+		.shoot(shoot),
+		.shipUpdateEn(shipUpdateEn),
+		.gridUpdateEn(gridUpdateEn),
+		.user_x(user_x),
+		.enemy_x(enemy_x),
+		.gun_cooldown(gun_cooldown),
+		.grid(grid)
    );
 
 	display d1(
@@ -134,7 +135,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	// Define the number of colours as well as the initial background
 	// image file (.MIF) for the controller.
 	vga_adapter VGA(
-			.resetn(resetn),
+			.resetn(~reset),
 			.clock(CLOCK_50),
 			.colour(colour),
 			.x(x),
