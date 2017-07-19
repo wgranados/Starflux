@@ -19,6 +19,10 @@ module display(clk, reset, user_x, enemy_x, grid, x, y, colour);
 	wire [2:0]blue = 3'b001;
 	wire [2:0]black = 3'b000;
 
+
+	// count from 0 to 160*120-1=19200 and implictly calculate the x,y 
+	// values from the counter. Since X changes every tick, and Y changes 
+	// once every 160 ticks, which can be emulated using integer division.
 	
 	assign x = counter%160; 
 	assign y = counter/120;
@@ -39,6 +43,7 @@ module display(clk, reset, user_x, enemy_x, grid, x, y, colour);
 					colour <= blue; 
 				end
 				// draw bullets in green
+				// but for now we'll just draw the other positions as black to reset the screen
 				else begin
 					colour <= black;
 				end

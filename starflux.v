@@ -44,8 +44,8 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	// Declare your inputs and outputs here
 	// Do not change the following outputs
 	output VGA_CLK;   				//	VGA Clock
-	output VGA_HS;					//	VGA H_SYNC
-	output VGA_VS;					//	VGA V_SYNC
+	output VGA_HS;						//	VGA H_SYNC
+	output VGA_VS;						//	VGA V_SYNC
 	output VGA_BLANK_N;				//	VGA BLANK
 	output VGA_SYNC_N;				//	VGA SYNC
 	output [9:0] VGA_R;   			//	VGA Red[9:0]
@@ -85,18 +85,16 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	
 	wire [160*120-1:0]grid; // grid we're gonna use for the shifter bit modules
 
-
-	hex_decoder_always h4(.hex_digit(gun_cooldown[3:0]), .segments(HEX4));
-
-   // Instansiate datapath
+   // Instansiate control and datapath variables 
    wire shipUpdateEn, gridUpdateEn;
-	wire writeEn;
-	wire [2:0] colour;
-	wire [7:0] x;
-	wire [6:0] y;
-	 
+	wire writeEn; // write enable to plot stuff on VGA screen
+	wire [2:0] colour; // 3 bit (R,G,B) value to be displatyed on VGA
+	wire [7:0] x; // 8 bit x value because of our screen resolution
+	wire [6:0] y; // 7 bit y value because of our screen resolution
 	 
    // Instansiate FSM control and writing handler
+	// which determines when we're going to draw stuff
+	// on screen and ours ships and grids
 	control C0(
         .clk(CLOCK_50),
         .reset(reset),
@@ -105,6 +103,9 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 		  .writeEn(writeEn)
    );
 	 
+	// Instatiates datapah which makes changes to
+	// our ships and grid, based on the FSM logic from
+	// the controller
    datapath d0(
       .clk(CLOCK_50),
       .reset(reset),
@@ -119,6 +120,9 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 		.grid(grid)
    );
 
+	// handle logic for displaying stuff to our VGA screen
+	// in this case we handle logic for our selection of 
+	// triplets (X, Y, COLOUR)
 	display d1(
 		.clk(CLOCK_50),
 		.reset(reset),
@@ -130,6 +134,12 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 		.colour(colour)
 	);
 	
+	// display gun cooldown (0-F) on HEX4
+	hex_decoder_always h4(
+		.hex_digit(gun_cooldown[3:0]), 
+		.segments(HEX4)
+	);
+
 
 	// Create an Instance of a VGA controller - there can be only one!
 	// Define the number of colours as well as the initial background
