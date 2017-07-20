@@ -1,13 +1,19 @@
-module enemy(health, CLOCK_50, LEDR, x, resetn);
+module enemy(health, x_val_bullet, y_val_bullet, CLOCK_50, LEDR, x, resetn);
 	output [17:0] LEDR;
+	output [7:0] x_val_bullet;
+	output [7:0] y_val_bullet;
+	input health;
 	input CLOCK_50;
 	input resetn;
-        output [7:0] x;
-	movement_handler(.clock(CLOCK_50),.x_val(x), .reset(resetn));
+   output [7:0] x;
+	enemy_handler(.clock(CLOCK_50),.x_val(x), .reset(resetn), .LEDR(LEDR));
+	shoot(.clock(CLOCK_50),.x_val_ship(x), .x_val_bullet(x_val_bullet), .y_val_bullet(y_val_bullet), .reset(resetn));
 endmodule
 
-module movement_handler(clock, x_val, reset);
+module enemy_handler(clock, x_val, reset, LEDR);
     input clock; // 50mhz clock from de2 board
+	 input reset;
+	 output [17:0]LEDR;
     output reg [7:0] x_val; // output values
     reg left; // true if the enemy is moving towards left side of the screen
 	 wire [27:0]rd_2hz_out; 
@@ -23,37 +29,41 @@ module movement_handler(clock, x_val, reset);
 
     always@(posedge movement_handler_clock)
     begin
-	if(!reset)
-		begin
-			x_val <= 8'b0;
-			left <= 1'b0;
-		end
-        else if(!left)
-		begin
+		if(reset)
+			begin
+				x_val <= 8'b0;// If the reset button is clicked then reset the x value and make it go right
+				left <= 1'b0;
+			end
+      else if(!left)
+			begin
 		    	x_val <= x_val + 1'b1;
 		    	if(x_val == 8'b10100000)
 				begin
 					left = 1'b1;
 				end		
-		end
-        else if(left)
-		begin
-            		x_val <= x_val - 1'b1;
-			if(x_val == 8'b0)
-				begin
-					left = 1'b0;
-				end
+			end
+      else if(left)
+			begin
+				x_val <= x_val - 1'b1;
+				if(x_val == 8'b0)
+					begin
+						left = 1'b0;
+					end
 	
-		end
+			end
     end
+	 assign LEDR[7:0] = x_val;
 
 endmodule
 
 
-module shoot(clock, x_val, reset);
+module shoot(clock,x_val_ship, x_val_bullet, y_val_bullet, reset);
     input clock; // 50mhz clock from de2 board
-    output reg [7:0] x_val; // output values
-    reg left; // true if the enemy is moving towards left side of the screen
+	 input [7:0] x_val_ship;
+    output reg [7:0] x_val_bullet; // output values
+	 output reg [7:0] y_val_bullet;
+	 input reset;
+    reg shot; // true if the bullet has been shot already  
 	 wire [27:0]rd_2hz_out; 
 	 rate_divider rd_2hz(
 			.enable(1'b1),
@@ -67,28 +77,18 @@ module shoot(clock, x_val, reset);
 
     always@(posedge movement_handler_clock)
     begin
-	if(!reset)
-		begin
-			x_val <= 8'b0;
-			left <= 1'b0;
-		end
-        else if(!left)
-		begin
-		    	x_val <= x_val + 1'b1;
-		    	if(x_val == 8'b10100000)
-				begin
-					left = 1'b1;
-				end		
-		end
-        else if(left)
-		begin
-            		x_val <= x_val - 1'b1;
-			if(x_val == 8'b0)
-				begin
-					left = 1'b0;
-				end
-	
-		end
+		if(reset)
+			begin
+				x_val_bullet <= 8'b0;
+				shot <= 1'b0;
+			end
+      else if(!shot)
+			begin
+		    	x_val_bullet <= x_val_ship;
+				y_val_bullet<= 8'b0;
+				shot = 1'b1;
+			end
+      else if(shot)
+				y_val_bullet <= y_val_bullet + 1'b1;
     end
-
 endmodule
