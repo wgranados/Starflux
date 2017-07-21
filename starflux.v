@@ -109,15 +109,6 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 		  .writeEn(writeEn)
    );
 	 
-   hex h(
-		.ship_health(ship_health), 
-	   .current_highscore(current_highscore), 
-		.alltime_highscore(alltime_highscore), 
-		.resetn(SW[2]), .health_update(health_update), 
-		.current_score_update(current_score_update), 
-		.gameover_signal(gameover), 
-		.CLOCK_50(CLOCK_50)
-		);
 				
 	// Instatiates datapah which makes changes to
 	// our ships and grid, based on the FSM logic from
@@ -133,8 +124,14 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 		.user_x(user_x),
 		.enemy_x(enemy_x),
 		.gun_cooldown(gun_cooldown),
-		.grid(grid)
-   );
+		.grid(grid),
+		.ship_health(ship_health), 
+		.current_highscore(current_highscore), 
+		.alltime_highscore(alltime_highscore), 
+		.health_update(health_update), 
+		.current_score_update(current_score_update), 
+		.gameover_signal(gameover)
+	);
 
 	// handle logic for displaying stuff to our VGA screen
 	// in this case we handle logic for our selection of 
