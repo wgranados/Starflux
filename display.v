@@ -10,8 +10,8 @@ module display(clk, reset, user_x, enemy_x, grid, x, y, colour);
 
 	
 	reg [7:0]counter = 11'b0;
-	wire [6:0]user_y = 7'd0;
-	wire [6:0]enemy_y = 7'd120;
+	wire [6:0]user_y = 7'd1;
+	wire [6:0]enemy_y = 7'd2;
 	
 	// colours we'll be using for the grid stuff
 	wire [2:0]red = 3'b100;
@@ -26,8 +26,8 @@ module display(clk, reset, user_x, enemy_x, grid, x, y, colour);
 	// values from the counter. Since X changes every tick, and Y changes 
 	// once every 160 ticks, which can be emulated using integer division.
 	
-	assign x = counter%160; 
-	assign y = counter/120;
+	assign x = counter%161; 
+	assign y = counter/161;
 	
 	always@(posedge clk) begin
 		if(reset)
@@ -41,11 +41,11 @@ module display(clk, reset, user_x, enemy_x, grid, x, y, colour);
 				if(clear) begin
 					colour <= black;
 				end
-				else if(x == user_x & y == user_y) begin	
+				else if(x == user_x && y == user_y) begin	
 					colour <= red; 
 				end
 				// draw enemy ship in blue
-				else if(x == enemy_x & y == enemy_y) begin	
+				else if(x == enemy_x && y == enemy_y) begin	
 					colour <= blue; 
 				end
 				// draw bullets in green

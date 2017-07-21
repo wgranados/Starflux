@@ -116,10 +116,9 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 		.resetn(SW[2]), .health_update(health_update), 
 		.current_score_update(current_score_update), 
 		.gameover_signal(gameover), 
-		.CLOCK_50(CLOCK_50), 
-		.LEDG(LEDG), 
-	   .LEDR(LEDR));
-		
+		.CLOCK_50(CLOCK_50)
+		);
+				
 	// Instatiates datapah which makes changes to
 	// our ships and grid, based on the FSM logic from
 	// the controller
