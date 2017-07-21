@@ -22,7 +22,7 @@ module movement_handler(clock, right, left, x_val);
         else if(left)
             x_val <= (x_val > 8'b0000_0000)  ? x_val - 1'b1 : 8'b0000_0000;
         else if(right)
-            x_val <= (x_val < 8'b1111_1111) ? x_val + 1'b1: 8'b1111_1111;
+            x_val <= (x_val < 8'd120) ? x_val + 1'b1: 8'd120;
     end
 
 endmodule

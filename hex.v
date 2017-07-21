@@ -1,4 +1,4 @@
-module hex(ship_health, current_highscore, alltime_highscore, resetn, health_update, current_score_update, gameover_signal, CLOCK_50, LEDG, LEDR);
+module hex(ship_health, current_highscore, alltime_highscore, resetn, health_update, current_score_update, gameover_signal, CLOCK_50);
 	output [3:0] ship_health;
 	output [7:0] current_highscore;
 	output [7:0] alltime_highscore;
@@ -7,12 +7,10 @@ module hex(ship_health, current_highscore, alltime_highscore, resetn, health_upd
    input current_score_update; // 1 bit value to update the current score
    input gameover_signal; // 1 bit value to update the gameover score. 	
 	input CLOCK_50;
-	output [17:0] LEDR;
-	output [8:0] LEDG;
 	all_time a(.current_highscore(current_highscore),.alltime_highscore(alltime_highscore) , .resetn(resetn), .clk(CLOCK_50));
 	current_score c(.current_highscore(current_highscore),.resetn(resetn), .clk(CLOCK_50));
 	health h(.ship_health(ship_health), .clk(CLOCK_50), .resetn(resetn));
-	gameover g(.ledr(LEDR), .ledg(LEDG), .clk(CLOCK_50), .resetn(resetn));
+	//gameover g(.ledr(LEDR), .ledg(LEDG), .clk(CLOCK_50), .resetn(resetn));
 endmodule
 
 module all_time(current_highscore,alltime_highscore, resetn, clk);
