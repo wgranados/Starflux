@@ -5,22 +5,14 @@ module shifter_grid(reset, shoot, clock, gridUpdateEn, user_x, enemy_x, grid);
 	 input gridUpdateEn;
     input [7:0]user_x; // player's position on the x plane
 	 input [7:0]enemy_x; // enemy's position on the x plane
-    output reg [160*120-1:0]grid; // 2d grid we're doing logic on
 
-	 reg [160:0] shifter_grid [120:0];
-	 
-	 // unwrap the shifter grid into something workable
-	 genvar j;
-	 generate
-		for(i = 0;i < 160:i = i+1) begin grid_unflatten
-			assign shifter_grid[160*i : 160] = grid[i]
-		end
-	 endgenerate
+    output [160*120-1:0]grid; // 2d grid we're doing logic on
 	 
 	 genvar i;
 	 generate
 	
-		for(i = 0;i < 160;i = i+1) begin shifter_grids
+
+	 for(i = 0;i < 160;i = i+1) begin: shifter_grids
 			shifter shift_i(
 				.load_val({(i == user_x ? 1:0), 119'b0}),
 				.load_n(1'b1),
@@ -28,9 +20,9 @@ module shifter_grid(reset, shoot, clock, gridUpdateEn, user_x, enemy_x, grid);
 				.ASR(1'b0),
 				.clk(clock),
 				.reset_n(reset),
-				.Q(grid[i])
-			)
-		end
+				.Q(grid[120*i+: 120])
+			);
+	 end
 	 
 	 endgenerate
 
@@ -98,16 +90,16 @@ module shifter_bit(in, load_val, shift, load_n, clk, reset_n, out);
 endmodule
 
 module shifter(load_val, load_n, shift_right, ASR, clk, reset_n, Q);
-  input [7:0]load_val; // input given from sW[7:0]
+  input [120:0]load_val; // input given from sW[7:0]
   input load_n; // global load_n value for all shifter bits, indicates whether to load values from load_val into each shifter bit
   input shift_right; // global shift value for all shifter bits, indicates to shift bits value to next shifter_bit
   input ASR; // determine if we are to perform sign extension; i.e. 101 (-1 signed) -> 110 (-2 signed), instead of 101 (6 unsigned) -> 010 (2 unsigned)
   input clk; // global clock to use for all of our flip flops
   input reset_n; // global reset_n value for all our flip fops in shifter_bits, which sets their output/value to 0
   
-  output [7:0]Q; // output register (generally LEDR[7:0]) we're to show value of shifter on
+  output [120:0]Q; // output register (generally LEDR[7:0]) we're to show value of shifter on
   
-  wire [7:0]sb_out;
+  wire [120:0]sb_out;
   
   shifter_bit sb_7(.in(ASR), .load_val(load_val[7]), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[7]) );
   shifter_bit sb_6(.in(sb_out[7]), .load_val(load_val[6]), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[6]) );
@@ -118,7 +110,7 @@ module shifter(load_val, load_n, shift_right, ASR, clk, reset_n, Q);
   shifter_bit sb_1(.in(sb_out[2]), .load_val(load_val[1]), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[1]) );
   shifter_bit sb_0(.in(sb_out[1]), .load_val(load_val[0]), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[0]) );
 
-  assign Q = sb_out[7:0];
+  assign Q = sb_out[120:0];
   
   
 endmodule
