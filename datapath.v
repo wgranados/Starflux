@@ -37,14 +37,14 @@ module datapath(clk, reset, right, left, shoot, shipUpdateEn, gridUpdateEn, user
 			.reset(reset)
 	);
 	
-	//shifter_grid sh(
-		//.reset(reset), 
-		//.shoot(shoot), 
-		//.clock(clk),
-		//.user_x(user_x),
-		//.enemy_x(enemy_x), 
-		//.grid(grid)
-	//);
+	shifter_grid sh(
+		.reset(reset), 
+		.shoot(shoot), 
+		.clock(clk),
+		.user_x(user_x),
+		.enemy_x(enemy_x), 
+		.grid(grid)
+	);
 
 
    

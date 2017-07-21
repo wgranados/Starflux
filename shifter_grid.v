@@ -6,20 +6,27 @@ module shifter_grid(reset, shoot, clock, gridUpdateEn, user_x, enemy_x, grid);
     input [7:0]user_x; // player's position on the x plane
 	 input [7:0]enemy_x; // enemy's position on the x plane
 
-    output [160*120-1:0]grid; // 2d grid we're doing logic on
+    output [160*120-1:0]grid; // 2d grid we're doing logic on, interperet it as paritions of 120
 	 
+	 // generate 160 shifter bit lines, each consisting of 
+	 // 120 shifter bits.
 	 genvar i;
 	 generate
-	
 
 	 for(i = 0;i < 160;i = i+1) begin: shifter_grids
 			shifter shift_i(
-				.load_val({(i == user_x ? 1:0), 119'b0}),
+				// only load_val value we care about is at the first shifter bit
+				// since this will be our shoot signal, so we concatinate everything
+				// {shoot, 199'b0}, on the shifter bits corresponding to user_x
+				.load_val({(i == user_x ? shoot:0), 119'b0}),
 				.load_n(1'b1),
 				.shift_right(gridUpdateEn),
 				.ASR(1'b0),
 				.clk(clock),
 				.reset_n(reset),
+				// interpret partitions like 0..120, 121...140, and
+				// have the shifterbit logic be outputed on these parts
+				// of the 2d grid 
 				.Q(grid[120*i+: 120])
 			);
 	 end
@@ -101,15 +108,24 @@ module shifter(load_val, load_n, shift_right, ASR, clk, reset_n, Q);
   
   wire [120:0]sb_out;
   
-  shifter_bit sb_7(.in(ASR), .load_val(load_val[7]), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[7]) );
-  shifter_bit sb_6(.in(sb_out[7]), .load_val(load_val[6]), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[6]) );
-  shifter_bit sb_5(.in(sb_out[6]), .load_val(load_val[5]), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[5]) );
-  shifter_bit sb_4(.in(sb_out[5]), .load_val(load_val[4]), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[4]) );
-  shifter_bit sb_3(.in(sb_out[4]), .load_val(load_val[3]), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[3]) );
-  shifter_bit sb_2(.in(sb_out[3]), .load_val(load_val[2]), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[2]) );
-  shifter_bit sb_1(.in(sb_out[2]), .load_val(load_val[1]), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[1]) );
-  shifter_bit sb_0(.in(sb_out[1]), .load_val(load_val[0]), .shift(shift_right), .load_n(load_n), .clk(clk), .reset_n(reset_n), .out(sb_out[0]) );
+  genvar i;
+  generate
+  
+	  for(i = 120;i >= 1;i = i-1) begin: shifter_bit_init
+			  shifter_bit sb_i(
+				  .in( (i == 0 ? ASR & load_val[i] : sb_out[i]) ), 
+				  .load_val(load_val[i-1]), 
+				  .shift(shift_right), 
+				  .load_n(load_n), 
+				  .clk(clk), 
+				  .reset_n(reset_n), 
+				  .out(sb_out[i-1]) 
+			  );
+		end
 
+  
+  endgenerate
+  
   assign Q = sb_out[120:0];
   
   
