@@ -29,6 +29,13 @@ module datapath(clk, reset, right, left, shoot, shipUpdateEn, gridUpdateEn, user
 		  .left(left),
 		  .x_val(user_x)
 	 );
+	 
+	 // handles the logic for moving the enemy
+	 enemy enm(
+			.clock(clk),
+			.x_val(enemy_x), 
+			.reset(reset)
+	);
 	
 	//shifter_grid sh(
 		//.reset(reset), 

@@ -73,7 +73,6 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
    wire [3:0]ship_health;  // 8 bit value, we're to display lower four bits on 
                            // HEX6, and upper four bits on HEX7
 									
-	wire [3:0]enemy_health;
    
 	wire [3:0]gun_cooldown; // 8 bit value, we're to display lower four bits on 
                            // 4 and upper four bits HEX5
@@ -110,18 +109,17 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 		  .writeEn(writeEn)
    );
 	 
-   //hex h(
-		//.ship_health(ship_health), 
-	   //.current_highscore(current_highscore), 
-		//.alltime_highscore(alltime_highscore), 
-		//.resetn(SW[2]), .health_update(health_update), 
-		//.current_score_update(current_score_update), 
-		//.gameover_signal(gameover), 
-		//.CLOCK_50(CLOCK_50), 
-		//.LEDG(LEDG), 
-	   //.LEDR(LEDR));
+   hex h(
+		.ship_health(ship_health), 
+	   .current_highscore(current_highscore), 
+		.alltime_highscore(alltime_highscore), 
+		.resetn(SW[2]), .health_update(health_update), 
+		.current_score_update(current_score_update), 
+		.gameover_signal(gameover), 
+		.CLOCK_50(CLOCK_50), 
+		.LEDG(LEDG), 
+	   .LEDR(LEDR));
 		
-	enemy(.health(enemy_health), .x_val_bullet(x_val_bullet), .y_val_bullet(y_val_bullet), .CLOCK_50(CLOCK_50), .LEDR(LEDR), .x(8'b0), .resetn(SW[2]));
 	// Instatiates datapah which makes changes to
 	// our ships and grid, based on the FSM logic from
 	// the controller
