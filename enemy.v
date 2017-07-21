@@ -36,7 +36,6 @@ module enemy(clock, x_val, reset);
 					begin
 						left = 1'b0;
 					end
-	
 			end
     end
 endmodule

@@ -1,4 +1,4 @@
-module datapath(clk, reset, right, left, shoot, shipUpdateEn, gridUpdateEn, user_x, enemy_x, gun_cooldown, grid);
+module datapath(clk, reset, right, left, shoot, shipUpdateEn, gridUpdateEn, user_x, enemy_x, gun_cooldown, grid, ship_health, current_highscore, alltime_highscore, health_update, current_score_update, gameover_signal);
 					 
     input clk; // default 50mhz clock
     input reset; // value given from KEY[0]
@@ -7,7 +7,14 @@ module datapath(clk, reset, right, left, shoot, shipUpdateEn, gridUpdateEn, user
 	 input right;
 	 input left;
 	 input shoot;
+	 input health_update; // 1 bit value to update health.
+	 input current_score_update; // 1 bit value to update the current score
+    input gameover_signal; // 1 bit value to update the gameover score.
 
+	 output [3:0] ship_health;
+	 output [7:0] current_highscore;
+	 output [7:0] alltime_highscore;
+ 
 	 output reg [7:0] user_x;
 	 output reg [7:0] enemy_x;
 	 output reg [3:0] gun_cooldown;
@@ -45,8 +52,20 @@ module datapath(clk, reset, right, left, shoot, shipUpdateEn, gridUpdateEn, user
 		//.enemy_x(enemy_x), 
 		//.grid(grid)
 	//);
-
-
-   
-
+	
+	all_time a(
+		.current_highscore(current_highscore),	
+		.alltime_highscore(alltime_highscore), 
+		.resetn(reset), 
+		.clk(Clk));
+		
+	current_score c(
+		.current_highscore(current_highscore),
+		.resetn(reset), 
+		.clk(clk));
+		
+	health h(
+		.ship_health(ship_health), 
+		.clk(clk), 
+		.resetn(reset));
 endmodule
