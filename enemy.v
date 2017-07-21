@@ -6,7 +6,7 @@ module enemy(clock, x_val, reset);
 	 wire [27:0]rd_2hz_out; 
 	 rate_divider rd_2hz(
 			.enable(1'b1),
-			.countdown_start(28'b1011111010111100000111111), // 24,999,99 in dec
+			.countdown_start(28'd2499999), // 24,999,99 in dec
 			.clock(clock),
 			.reset(reset),
 			.q(rd_2hz_out)
@@ -23,16 +23,16 @@ module enemy(clock, x_val, reset);
 			end
       else if(!left)
 			begin
-		    	x_val <= x_val + 1'b1;
-		    	if(x_val == 8'b10100000)
+		    	x_val <= x_val + 1'b1;// increase the x value of enemy when moving to the right
+		    	if(x_val == 8'd120)
 				begin
-					left = 1'b1;
+					left = 1'b1; // if the enemy reaches the rightmost position of the screen then make it move to the left
 				end		
 			end
       else if(left)
 			begin
-				x_val <= x_val - 1'b1;
-				if(x_val == 8'b0)
+				x_val <= x_val - 1'b1; 
+				if(x_val == 8'b0) // if the enemy reaches the leftmost position of the screen then make it move to the right.
 					begin
 						left = 1'b0;
 					end
