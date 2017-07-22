@@ -55,6 +55,18 @@ module datapath(clk, reset, right, left, shoot, shipUpdateEn, gridUpdateEn, user
 		.grid(grid)
 	);
 	
+	wire current_score_update;
+	wire current_health_update;
+	
+	// handles collision logic for our stuff
+	collision_handler ch(
+		.grid(grid),
+	   .current_score_update(current_score_update),
+		.current_health_update(current_health_update),
+		.user_x(user_x),
+		.enemy_x(enemy_x)
+	);
+	
 	// handles logic for all time highscore
 	best_score_handler a(
 		.current_highscore(current_highscore),	
