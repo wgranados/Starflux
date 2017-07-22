@@ -1,12 +1,13 @@
-module datapath(clk, reset, right, left, shoot, shipUpdateEn, gridUpdateEn, user_x, enemy_x, gun_cooldown, grid, ship_health, current_highscore, alltime_highscore, health_update, current_score_update, gameover_signal);
+module datapath(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, gridUpdateEn, user_x, enemy_x, gun_cooldown, grid, ship_health, health_update, current_highscore, alltime_highscore, current_score_update, gameover_signal);
 					 
     input clk; // default 50mhz clock
     input reset; // value given from KEY[0]
-	 input shipUpdateEn;
-	 input gridUpdateEn;
 	 input right;
 	 input left;
 	 input shoot;
+	 input startGameEn;
+	 input shipUpdateEn;
+	 input gridUpdateEn;
 	 input health_update; // 1 bit value to update health.
 	 input current_score_update; // 1 bit value to update the current score
     input gameover_signal; // 1 bit value to update the gameover score.
@@ -25,8 +26,8 @@ module datapath(clk, reset, right, left, shoot, shipUpdateEn, gridUpdateEn, user
 	 gun_cooldown_handler gc(
 	   .clock(clk),
 		.shoot(shoot),
-		.reset(reset),
-		.gun_cooldown_counter(gun_cooldown)
+		.gun_cooldown_counter(gun_cooldown),
+		.startGameEn(startGameEn)
 	 );
 	
 	 // handles logic for moving left and right
@@ -34,46 +35,50 @@ module datapath(clk, reset, right, left, shoot, shipUpdateEn, gridUpdateEn, user
 		  .clock(clk),
 		  .right(right),
 		  .left(left),
-		  .x_val(user_x)
+		  .x_val(user_x),
+		  .startGameEn(startGameEn)
 	 );
 	 
 	 // handles the logic for moving the enemy
 	 enemy enm(
 			.clock(clk),
 			.x_val(enemy_x), 
-			.reset(reset)
+			.startGameEn(startGameEn)
 	);
 	
 	// handles the shifter bit logic which keeps
 	// track of all the bullets
 	shifter_grid sh(
-		.reset(reset), 
-		.shoot(shoot), 
+		.shoot(shoot),
 		.clock(clk),
 		.user_x(user_x),
-		.enemy_x(enemy_x), 
-		.grid(grid)
+		.enemy_x(enemy_x),
+		.grid(grid),
+		.startGameEn(startGameEn)
 	);
 	
 	// handles logic for all time highscore
 	best_score_handler a(
 		.current_highscore(current_highscore),	
 		.alltime_highscore(alltime_highscore), 
-		.clk(Clk)
+		.clk(Clk),
+		.startGameEn(startGameEn)
 	);
 	
 	// handles logic for current highscore
 	current_score_handler csh(
 		.current_highscore(current_highscore),
 		.current_score_update(1'b0), // for now, we'll set this to 0
-		.clk(clk)
+		.clk(clk),
+		.startGameEn(startGameEn)
 	);
 	
 	//handles logic for user's health
 	health_handler h(
 		.ship_health(ship_health), 
 		.health_update(1'b0), // for now we'll set this to 0
-		.clk(clk)
+		.clk(clk),
+		.startGameEn(startGameEn)
 	);
 		
 endmodule

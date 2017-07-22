@@ -4,7 +4,7 @@ module display(clk, reset, user_x, enemy_x, grid, x, y, colour);
 	input [7:0]user_x;
 	input [7:0]enemy_x;
 	input [160*120-1:0] grid;
-	output [7:0] x; 
+	output [7:0] x;
 	output [6:0] y;
 	output reg[2:0] colour;
 
@@ -61,7 +61,4 @@ module display(clk, reset, user_x, enemy_x, grid, x, y, colour);
 				counter <= counter + 1'b1;
 			end
 	end
-	
-	
-	
 endmodule

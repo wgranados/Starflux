@@ -1,6 +1,6 @@
-module enemy(clock, x_val, reset);
+module enemy(clock, x_val, startGameEn);
     input clock; // 50mhz clock from de2 board
-	 input reset;
+	 input startGameEn;
     output reg [7:0] x_val; // output values
     reg left; // true if the enemy is moving towards left side of the screen
 	 wire [27:0]rd_2hz_out; 
@@ -16,7 +16,7 @@ module enemy(clock, x_val, reset);
 
     always@(posedge movement_handler_clock)
     begin
-		if(reset)
+		if(startGameEn)
 			begin
 				x_val <= 8'b0;// If the reset button is clicked then reset the x value and make it go right
 				left <= 1'b0;

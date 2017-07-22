@@ -90,6 +90,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	wire [160*120-1:0]grid; // grid we're gonna use for the shifter bit modules
 
    // Instansiate control and datapath variables 
+	wire startGameEn; 
    wire shipUpdateEn, gridUpdateEn;
 	wire writeEn; // write enable to plot stuff on VGA screen
 	wire gameOverEn; // signalling the ledg and ledr's when the game is in gameover state.
@@ -107,6 +108,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	control C0(
         .clk(CLOCK_50),
         .reset(reset),
+		  .startGameEn(startGameEn),
 		  .shipUpdateEn(shipUpdateEn), 
 		  .gridUpdateEn(gridUpdateEn),
 		  .writeEn(writeEn),
@@ -118,25 +120,27 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	// Instatiates datapah which makes changes to
 	// our ships and grid, based on the FSM logic from
 	// the controller
-   datapath d0(
-      .clk(CLOCK_50),
-      .reset(reset),
-		.right(right),
-		.left(left),
-		.shoot(shoot),
-		.shipUpdateEn(shipUpdateEn),
-		.gridUpdateEn(gridUpdateEn),
-		.user_x(user_x),
-		.enemy_x(enemy_x),
-		.gun_cooldown(gun_cooldown),
-		.grid(grid),
+	datapath(
+		.clk(CLOCK_50), 
+		.reset(reset), 
+		.right(right), 
+		.left(left), 
+		.shoot(shoot), 
+		.startGameEn(startGameEn), 
+		.shipUpdateEn(shipUpdateEn), 
+		.gridUpdateEn(gridUpdateEn), 
+		.user_x(user_x), 
+		.enemy_x(enemy_x), 
+		.gun_cooldown(gun_cooldown), 
+		.grid(grid), 
 		.ship_health(ship_health), 
-		.current_highscore(current_highscore), 
-		.alltime_highscore(alltime_highscore), 
 		.health_update(health_update), 
+		.current_highscore(current_highscore), 
+		.alltime_highscore(alltime_highscore),  
 		.current_score_update(current_score_update), 
-		.gameover_signal(gameover)
+		.gameover_signal(gameover_signal)
 	);
+	
 
 	// handle logic for displaying stuff to our VGA screen
 	// in this case we handle logic for our selection of 

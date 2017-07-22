@@ -1,10 +1,9 @@
-module control(clk, reset, user_x, enemy_x, shipUpdateEn, gridUpdateEn, writeEn, gameOverEn, ship_health);
+module control(clk, reset, startGameEn ,shipUpdateEn, gridUpdateEn, writeEn, gameOverEn, ship_health);
 	input clk; // normal 50 Mhz clock passed by de2 board
 	input reset; // reset signal given by SW[2] 
-	input [3:0]ship_health; // stores the current ship's health.
+	input ship_health;
 	
-	output reg [7:0]user_x;
-	output reg [7:0]enemy_x; // ship positions on x axis
+	output reg startGameEn;
 	output reg shipUpdateEn; // update the ship
 	output reg gridUpdateEn; // update the grid
 	output reg writeEn; // enable writes to vga output
@@ -36,7 +35,7 @@ module control(clk, reset, user_x, enemy_x, shipUpdateEn, gridUpdateEn, writeEn,
     begin: state_table
         case (current_state)
             S_START_GAME:      next_state = go ? S_DRAW: S_START_GAME;
-            S_DRAW: 				 next_state = go ? S_UPDATE: S_UPDATE;
+            S_DRAW: 				 next_state = go ? S_UPDATE: S_DRAW;
             S_UPDATE:          next_state = ((ship_health == 8'b0) ? S_GAMEOVER: (go ? S_DRAW : S_UPDATE));
 				S_GAMEOVER:        next_state = go ? S_START_GAME:S_GAMEOVER;
             default:           next_state = S_START_GAME;
@@ -53,11 +52,14 @@ module control(clk, reset, user_x, enemy_x, shipUpdateEn, gridUpdateEn, writeEn,
 	     writeEn = 1'b0;
 		  shipUpdateEn = 1'b0;
 		  gridUpdateEn = 1'b0;
+		  startGameEn = 1'b0;
 		  gameOverEn = 1'b0;
 		  
 		  case (current_state)
             S_START_GAME: begin
 					writeEn = 1'b1;
+					// reset both ships to start of the grid
+					startGameEn = 1'b1;
 				end
             S_DRAW: begin
 					writeEn = 1'b1;
@@ -76,14 +78,9 @@ module control(clk, reset, user_x, enemy_x, shipUpdateEn, gridUpdateEn, writeEn,
     begin
         if(reset) begin
             current_state <= S_START_GAME;
-				// reset both ships to start of the grid
-				user_x <= 8'd80; 
-				enemy_x <= 8'd80;
 		  end
-        else
+        else begin
 				current_state <= next_state;
+		  end
     end 
-
 endmodule
-
-

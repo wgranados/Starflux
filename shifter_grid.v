@@ -1,5 +1,5 @@
-module shifter_grid(reset, shoot, clock, gridUpdateEn, user_x, enemy_x, grid);
-    input reset; // reset the grid from SW[2]
+module shifter_grid(startGameEn, shoot, clock, gridUpdateEn, user_x, enemy_x, grid);
+    input startGameEn; // reset the grid from SW[2]
     input shoot; // shoot input from SW[1]
     input clock; // default 50mhz clock input
 	 input gridUpdateEn;

@@ -1,6 +1,7 @@
-module movement_handler(clock, right, left, x_val);
+module movement_handler(clock, right, left, x_val, startGameEn);
     input clock; // 50mhz clock from de2 board
     input right, left; // left, right movement from KEY[3] and KEY[0]
+	 input startGameEn;
     output reg [7:0] x_val; // output values 
 		 
 	 wire [27:0]rd_16hz_out; 
@@ -17,12 +18,22 @@ module movement_handler(clock, right, left, x_val);
 
     always@(posedge movement_handler_clock)
     begin
-		  if(left & right)
+		  if(startGameEn)
+		  begin
+				x_val <= 8'b0;
+		  end
+		  else if(left & right)
+		  begin
 		      x_val <= x_val;
+		  end
         else if(left)
+		  begin
             x_val <= (x_val > 8'b0000_0000)  ? x_val - 1'b1 : 8'b0000_0000;
+		  end
         else if(right)
+		  begin
             x_val <= (x_val < 8'd120) ? x_val + 1'b1: 8'd120;
+		  end
     end
 
 endmodule
