@@ -1,21 +1,22 @@
-module control(clk, reset, user_x, enemy_x, shipUpdateEn, gridUpdateEn, writeEn);
+module control(clk, reset, user_x, enemy_x, shipUpdateEn, gridUpdateEn, writeEn, gameOverEn, ship_health);
 	input clk; // normal 50 Mhz clock passed by de2 board
 	input reset; // reset signal given by SW[2] 
+	input [3:0]ship_health; // stores the current ship's health.
 	
 	output reg [7:0]user_x;
 	output reg [7:0]enemy_x; // ship positions on x axis
 	output reg shipUpdateEn; // update the ship
 	output reg gridUpdateEn; // update the grid
 	output reg writeEn; // enable writes to vga output
+	output reg gameOverEn; // enable output the ledg and ledr patterns
+	
 
    reg [3:0] current_state, next_state; // state map for our FSM
 	 
    localparam  S_START_GAME      = 5'd0,
-               S_DRAW_BACKGROUND = 5'd1,
-               S_DRAW_SHIP       = 5'd2,
-               S_DRAW_ENEMY      = 5'd3,
-               S_DRAW_BULLETS    = 5'd4,
-               S_UPDATE          = 5'd5;
+               S_DRAW			   = 5'd1,
+               S_UPDATE          = 5'd2,
+               S_GAMEOVER        = 5'd3;
 
 					
 	 wire [27:0]rd_16hz_out; 
@@ -34,12 +35,10 @@ module control(clk, reset, user_x, enemy_x, shipUpdateEn, gridUpdateEn, writeEn)
     always@(*)
     begin: state_table
         case (current_state)
-            S_START_GAME:      next_state = go ? S_DRAW_BACKGROUND: S_START_GAME;
-            S_DRAW_BACKGROUND: next_state = go ? S_DRAW_SHIP: S_DRAW_BACKGROUND;
-            S_DRAW_SHIP:       next_state = go ? S_DRAW_ENEMY: S_DRAW_SHIP;
-            S_DRAW_ENEMY:      next_state = go ? S_DRAW_BULLETS: S_DRAW_ENEMY;
-            S_DRAW_BULLETS:    next_state = go ? S_UPDATE: S_DRAW_BULLETS;
-            S_UPDATE:          next_state = go ? S_DRAW_BACKGROUND: S_UPDATE;
+            S_START_GAME:      next_state = go ? S_DRAW: S_START_GAME;
+            S_DRAW: 				 next_state = go ? S_UPDATE: S_UPDATE;
+            S_UPDATE:          next_state = ((ship_health == 8'b0) ? S_GAMEOVER: (go ? S_DRAW : S_UPDATE));
+				S_GAMEOVER:        next_state = go ? S_START_GAME:S_GAMEOVER;
             default:           next_state = S_START_GAME;
         endcase
     end 
@@ -54,27 +53,22 @@ module control(clk, reset, user_x, enemy_x, shipUpdateEn, gridUpdateEn, writeEn)
 	     writeEn = 1'b0;
 		  shipUpdateEn = 1'b0;
 		  gridUpdateEn = 1'b0;
+		  gameOverEn = 1'b0;
 		  
 		  case (current_state)
             S_START_GAME: begin
 					writeEn = 1'b1;
 				end
-            S_DRAW_BACKGROUND: begin
+            S_DRAW: begin
 					writeEn = 1'b1;
             end
-				S_DRAW_SHIP :begin
-					writeEn = 1'b1;
-				end
-            S_DRAW_ENEMY: begin
-					writeEn = 1'b1;
-				end
-            S_DRAW_BULLETS: begin
-					writeEn = 1'b1;
-				end
-            S_UPDATE: begin
+				S_UPDATE: begin
 					shipUpdateEn = 1'b1;
 					gridUpdateEn = 1'b1;
-				end				
+				end	
+            S_GAMEOVER: begin
+					gameOverEn = 1'b1;
+				end		
         endcase
     end 
 
@@ -87,7 +81,7 @@ module control(clk, reset, user_x, enemy_x, shipUpdateEn, gridUpdateEn, writeEn)
 				enemy_x <= 8'd80;
 		  end
         else
-            current_state <= next_state;
+				current_state <= next_state;
     end 
 
 endmodule

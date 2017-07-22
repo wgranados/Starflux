@@ -92,6 +92,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
    // Instansiate control and datapath variables 
    wire shipUpdateEn, gridUpdateEn;
 	wire writeEn; // write enable to plot stuff on VGA screen
+	wire gameOverEn; // signalling the ledg and ledr's when the game is in gameover state.
 	wire [2:0] colour; // 3 bit (R,G,B) value to be displatyed on VGA
 	wire [7:0] x; // 8 bit x value because of our screen resolution
 	wire [6:0] y; // 7 bit y value because of our screen resolution
@@ -106,7 +107,9 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
         .reset(reset),
 		  .shipUpdateEn(shipUpdateEn), 
 		  .gridUpdateEn(gridUpdateEn),
-		  .writeEn(writeEn)
+		  .writeEn(writeEn),
+		  .gameOverEn(gameOverEn),
+		  .ship_health(ship_health)
    );
 	 
 				
@@ -192,6 +195,15 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 		defparam VGA.MONOCHROME = "FALSE";
 		defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
 		defparam VGA.BACKGROUND_IMAGE = "black.mif";
+		
+	
+	gameover g(
+		.ledr(LEDR), 
+		.ledg(LEDG), 
+		.clk(CLOCK_50), 
+		.gameover(gameOverEn)
+	);
+
 
 
 
