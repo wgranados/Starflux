@@ -143,3 +143,14 @@ repository for the project public. As the code for the font ROM and the VGA have
 to the Attributions list. Over the next week before the next lab, we will work on the enemy ship. It is no longer a swarm, but instead
 one powerful adversary who will speed up with every hit it takes from the player. It's movements will be very simple, only
 from left to right, and the bullets will come out as a constant stream that the player must avoid.
+
+Week 3: We modularized the code and added better documentation for some modules. The portion for the drawing and resetting the screen
+has been revamped. We have tested the movement pattern of the enemy ship on the screen and have also managed to dislayed the user and 
+enempy ships on the vga screen.  Most work regarding the shifter bit grid has been completed, now we just need to integreate this part
+completely into the project so that we can simulate the bullets moving through the grid. The hexlogic for HEX0-HEX5 has been finalized,
+and now we only need to complete the requirements of the shifter grid for full functionality. We've also integreated a special game over
+LED flash show into our FSM state. For next week we plan to finalize the shifter bit logic into  our project, and handle collision detection
+for our the ships and bullets. We also plan to enhance the enemy behaviour when they are hit by bullet, specifically we wil make them faster.
+
+
+
