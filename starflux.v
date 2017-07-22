@@ -98,6 +98,8 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	wire health_update; // 1 bit value to update the health
 	wire current_score_update; // 1 bit value to update the current score
 	wire gameover; // 1 bit value to signal gameover
+	
+	
    // Instansiate FSM control and writing handler
 	// which determines when we're going to draw stuff
 	// on screen and ours ships and grids
@@ -147,27 +149,38 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 		.colour(colour)
 	);
 	
+	// display ship health (F-0) on HEX5
+	hex_decoder_always h5(
+		.hex_digit(ship_health[3:0]), 
+		.segments(HEX5)
+	);
 	// display gun cooldown (0-F) on HEX4
 	hex_decoder_always h4(
 		.hex_digit(gun_cooldown[3:0]), 
 		.segments(HEX4)
 	);
-	hex_decoder_always h1(
-		.hex_digit(alltime_highscore[7:4]), 
-		.segments(HEX1)); // displaying it on the hexes.
-	hex_decoder_always h0(
-		.hex_digit(alltime_highscore[3:0]), 
-		.segments(HEX0));
+	
+	// display the user's current score (0-FF) on
+	// HEX3 and HEX2
 	hex_decoder_always h3(
 		.hex_digit(current_highscore[7:4]), 
-		.segments(HEX3)); // displaying it on the hexes.
+		.segments(HEX3)
+	); 
 	hex_decoder_always h2(
 		.hex_digit(current_highscore[3:0]), 
-		.segments(HEX2));
-	hex_decoder_always h5(
-		.hex_digit(ship_health[3:0]), 
-		.segments(HEX5));
-
+		.segments(HEX2)
+	);
+	
+	// display the all time high score (0-FF) on
+	// HEX1 and HEX0
+	hex_decoder_always h1(
+		.hex_digit(alltime_highscore[7:4]), 
+		.segments(HEX1)
+	);
+	hex_decoder_always h0(
+		.hex_digit(alltime_highscore[3:0]), 
+		.segments(HEX0)
+	);
 
 	// Create an Instance of a VGA controller - there can be only one!
 	// Define the number of colours as well asHEX the initial background

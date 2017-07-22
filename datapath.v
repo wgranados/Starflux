@@ -44,6 +44,8 @@ module datapath(clk, reset, right, left, shoot, shipUpdateEn, gridUpdateEn, user
 			.reset(reset)
 	);
 	
+	// handles the shifter bit logic which keeps
+	// track of all the bullets
 	shifter_grid sh(
 		.reset(reset), 
 		.shoot(shoot), 
@@ -53,20 +55,25 @@ module datapath(clk, reset, right, left, shoot, shipUpdateEn, gridUpdateEn, user
 		.grid(grid)
 	);
 	
-	all_time a(
+	// handles logic for all time highscore
+	best_score_handler a(
 		.current_highscore(current_highscore),	
 		.alltime_highscore(alltime_highscore), 
-		.resetn(reset), 
-		.clk(Clk));
-		
-	current_score c(
+		.clk(Clk)
+	);
+	
+	// handles logic for current highscore
+	current_score_handler csh(
 		.current_highscore(current_highscore),
-		.resetn(reset), 
-		.clk(clk));
-		
-	health h(
+		.current_score_update(1'b0), // for now, we'll set this to 0
+		.clk(clk)
+	);
+	
+	//handles logic for user's health
+	health_handler h(
 		.ship_health(ship_health), 
-		.clk(clk), 
-		.resetn(reset));
+		.health_update(1'b0), // for now we'll set this to 0
+		.clk(clk)
+	);
 		
 endmodule
