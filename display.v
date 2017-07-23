@@ -1,15 +1,13 @@
-module display(clk, reset, user_x, enemy_x, grid, x, y, colour);
+module display(clk, startGameEn, user_x, enemy_x, grid, x, y, colour);
 	input clk; // default 50Mhz clock on de2 board 
-	input reset; // reset signal 
+	input startGameEn; // reset signal 
 	input [7:0]user_x;
 	input [7:0]enemy_x;
 	input [160*120-1:0] grid;
-	output [7:0] x;
-	output [6:0] y;
+	output reg [7:0] x;
+	output reg [6:0] y;
 	output reg[2:0] colour;
 
-	
-	reg [7:0]counter = 11'b0;
 	wire [6:0]user_y = 7'd1;
 	wire [6:0]enemy_y = 7'd2;
 	
@@ -24,15 +22,14 @@ module display(clk, reset, user_x, enemy_x, grid, x, y, colour);
 
 	// count from 0 to 160*120-1=19200 and implictly calculate the x,y 
 	// values from the counter. Since X changes every tick, and Y changes 
-	// once every 160 ticks, which can be emulated using integer division.
+	// once every 160 ticks, which can be emulated using integer division
 	
-	assign x = counter%161; 
-	assign y = counter/161;
 	
 	always@(posedge clk) begin
-		if(reset)
+		if(startGameEn)
 			begin
-				counter <= 8'b0;
+				x <= 8'b0;
+				y <= 7'b0;
 				clear <= 1'b1;
 			end
 		else 
@@ -53,12 +50,18 @@ module display(clk, reset, user_x, enemy_x, grid, x, y, colour);
 				else begin
 					colour <= black;
 				end
-
-				if(counter == 11'd19200) begin
-					counter <= 11'd0; // wrap around to 0
-					clear <= 1'b0; // reset clear to default
+				if(x < 8'd160) begin
+					x <= x + 1'b1;
 				end
-				counter <= counter + 1'b1;
+				if(x == 8'd160 && y != 7'd120) begin
+					x <= 0;
+					y <= y + 1'b1;
+				end
+				else if(y == 7'd120 &&  x == 8'd160) begin
+					x <= 8'b0;
+					y <= 7'b0;
+					clear <= 1'b0;
+				end
 			end
 	end
 endmodule

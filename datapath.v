@@ -48,26 +48,26 @@ module datapath(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, gridU
 	
 	// handles the shifter bit logic which keeps
 	// track of all the bullets
-	shifter_grid sh(
-		.shoot(shoot),
-		.clock(clk),
-		.user_x(user_x),
-		.enemy_x(enemy_x),
-		.grid(grid),
-		.startGameEn(startGameEn)
-	);
+	//shifter_grid sh(
+	//	.shoot(shoot),
+	//	.clock(clk),
+	//	.user_x(user_x),
+	//	.enemy_x(enemy_x),
+	//	.grid(grid),
+	//	.startGameEn(startGameEn)
+	//);
 	
 	wire current_score_update;
 	wire current_health_update;
 	
 	// handles collision logic for our stuff
-	collision_handler ch(
-		.grid(grid),
-	   .current_score_update(current_score_update),
-		.current_health_update(current_health_update),
-		.user_x(user_x),
-		.enemy_x(enemy_x)
-	);
+	//collision_handler ch(
+	//	.grid(grid),
+	//   .current_score_update(current_score_update),
+	//	.current_health_update(current_health_update),
+	//	.user_x(user_x),
+	//	.enemy_x(enemy_x)
+	//);
 	
 	// handles logic for all time highscore
 	best_score_handler a(

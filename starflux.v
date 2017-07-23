@@ -147,7 +147,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	// triplets (X, Y, COLOUR)
 	display d1(
 		.clk(CLOCK_50),
-		.reset(reset),
+		.startGameEn(startGameEn),
 		.user_x(user_x),
 		.enemy_x(enemy_x),
 		.grid(grid),
