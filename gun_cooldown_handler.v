@@ -11,7 +11,7 @@ module gun_cooldown_handler(clock, shoot, gun_cooldown_counter, startGameEn);
 	wire [27:0]rd_1hz_out, rd_050hz_out; 
 	rate_divider rd_1hz(
 		.enable(1'b1),
-		.countdown_start(28'b10111110101111000001111111), // 49,999,99 in dec
+		.countdown_start(28'd49_999_999),
 		.clock(clock),
 		.reset(reset),
 		.q(rd_1hz_out)
@@ -20,25 +20,25 @@ module gun_cooldown_handler(clock, shoot, gun_cooldown_counter, startGameEn);
 	//  rate divider for our refreshing of the gun
    //  the expected behaviour is that we will create 
 	//  an enable signal every 2s for our counter to decrement to 0
-    rate_divider rd_050hz(
+   rate_divider rd_050hz(
       .enable(1'b1),
-      .countdown_start(28'b101111101011110000011111111), // 99,999,999 in decimal
+      .countdown_start(28'd99_999_999),
       .clock(clock),
       .reset(reset),
       .q(rd_050hz_out)
     );
 
-	wire gun_firing_enable   = (rd_1hz_out == 28'b0) ? 1:0;
-	wire gun_cooldown_enable = (rd_050hz_out == 28'b0) ? 1:0;
+	wire gun_firing_enable   = (rd_1hz_out == 28'b0) ? 1'b1 : 1'b0;
+	wire gun_cooldown_enable = (rd_050hz_out == 28'b0) ? 1'b1 : 1'b0;
 
 	always@(posedge clock)
 	begin
 		if(startGameEn)
-			gun_cooldown_counter = 4'b0;
+			gun_cooldown_counter = 4'b0000;
 		if(gun_firing_enable & shoot)
-            gun_cooldown_counter = (gun_cooldown_counter < 4'b1111_1111) ? gun_cooldown_counter + 1'b1 : 4'b1111;
+            gun_cooldown_counter = (gun_cooldown_counter < 4'b1111) ? gun_cooldown_counter + 1'b1 : 4'b1111;
 		if(gun_cooldown_enable & !shoot)
-            gun_cooldown_counter = (gun_cooldown_counter > 4'b0000_0000) ? gun_cooldown_counter - 1'b1 : 4'b0000;
+            gun_cooldown_counter = (gun_cooldown_counter > 4'b0000) ? gun_cooldown_counter - 1'b1 : 4'b0000;
 	end
     assign gun_cooldown_out = gun_cooldown_counter;
 endmodule

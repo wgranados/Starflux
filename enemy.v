@@ -51,7 +51,7 @@ module shoot(clock,x_val_ship, x_val_bullet, y_val_bullet, reset);
 	 wire [27:0]rd_2hz_out; 
 	 rate_divider rd_2hz(
 			.enable(1'b1),
-			.countdown_start(28'b1011111010111100000111111), // 24,999,99 in dec
+			.countdown_start(28'd24_999_999), // 24,999,99 in dec
 			.clock(clock),
 			.reset(reset),
 			.q(rd_2hz_out)

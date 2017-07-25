@@ -21,7 +21,7 @@ module control(clk, reset, startGameEn ,shipUpdateEn, gridUpdateEn, writeEn, gam
 	 wire [27:0]rd_16hz_out; 
 	 rate_divider rd_16hz(
 			.enable(1'b1),
-			.countdown_start(28'b1011111010111100001000), // 3,125,000 in dec
+			.countdown_start(28'd3_125_000),
 			.clock(clk),
 			.reset(reset),
 			.q(rd_16hz_out)

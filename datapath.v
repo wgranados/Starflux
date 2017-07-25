@@ -1,96 +1,70 @@
-module datapath(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, gridUpdateEn, user_x, enemy_x, gun_cooldown, grid, ship_health, health_update, current_highscore, alltime_highscore, current_score_update, gameover_signal);
-					 
-    input clk; // default 50mhz clock
-    input reset; // value given from KEY[0]
-	 input right;
-	 input left;
-	 input shoot;
-	 input startGameEn;
-	 input shipUpdateEn;
-	 input gridUpdateEn;
-	 input health_update; // 1 bit value to update health.
-	 input current_score_update; // 1 bit value to update the current score
-    input gameover_signal; // 1 bit value to update the gameover score.
-
-	 output [3:0] ship_health;
-	 output [7:0] current_highscore;
-	 output [7:0] alltime_highscore;
- 
-	 output reg [7:0] user_x;
-	 output reg [7:0] enemy_x;
-	 output reg [3:0] gun_cooldown;
-	 output reg [160*120-1:0] grid; 
-
-	 
-	 // handles logic for  gun cooldown
-	 gun_cooldown_handler gc(
-	   .clock(clk),
-		.shoot(shoot),
-		.gun_cooldown_counter(gun_cooldown),
-		.startGameEn(startGameEn)
-	 );
+module datapath(clk, startGameEn, user_x, user_y, enemy_x, enemy_y, grid, x, y, colour);
+	input clk; // default 50Mhz clock on de2 board 
+	input startGameEn; // FSM reset signal to reset everything
+	input [7:0]user_x; // 8 bit value keeping track of the user's x position on the vga
+	input [6:0]user_y; // 7 bit value keeping track of the user's y position on the vga
+	input [7:0]enemy_x; // 8 bit value keeping track of the enemy's x position on the vga
+	input [6:0]enemy_y; // 7 bit value keeping track of the enemy's y position on the vga
+	input [160*120-1:0] grid; // 2D grid reprsentation for our 160x120 pixel screen, where each grid[y*120+x] represents an active bullet 
 	
-	 // handles logic for moving left and right
-	 movement_handler mv(
-		  .clock(clk),
-		  .right(right),
-		  .left(left),
-		  .x_val(user_x),
-		  .startGameEn(startGameEn)
-	 );
-	 
-	 // handles the logic for moving the enemy
-	 enemy enm(
-			.clock(clk),
-			.x_val(enemy_x), 
-			.startGameEn(startGameEn)
-	);
+	output reg [7:0] x; // 8 bit x coordinate on VGA screen
+	output reg [6:0] y; // 7 bit y coordinate on VGA screen
+	output reg[2:0] colour; // 3 bit RGB value on VGA screen
 	
-	// handles the shifter bit logic which keeps
-	// track of all the bullets
-	//shifter_grid sh(
-	//	.shoot(shoot),
-	//	.clock(clk),
-	//	.user_x(user_x),
-	//	.enemy_x(enemy_x),
-	//	.grid(grid),
-	//	.startGameEn(startGameEn)
-	//);
 	
-	wire current_score_update;
-	wire current_health_update;
+	// colours we'll be using for the grid stuff
+	wire [2:0]black 	= 3'b000;
+	wire [2:0]red		= 3'b100;
+	wire [2:0]green 	= 3'b010;
+	wire [2:0]blue 	= 3'b001;
+	// use this var when we want to clear the screen to
+   // by setting everything to black	
+	reg clear = 1'b0;
 	
-	// handles collision logic for our stuff
-	//collision_handler ch(
-	//	.grid(grid),
-	//   .current_score_update(current_score_update),
-	//	.current_health_update(current_health_update),
-	//	.user_x(user_x),
-	//	.enemy_x(enemy_x)
-	//);
-	
-	// handles logic for all time highscore
-	best_score_handler a(
-		.current_highscore(current_highscore),	
-		.alltime_highscore(alltime_highscore), 
-		.clk(Clk),
-		.startGameEn(startGameEn)
-	);
-	
-	// handles logic for current highscore
-	current_score_handler csh(
-		.current_highscore(current_highscore),
-		.current_score_update(1'b0), // for now, we'll set this to 0
-		.clk(clk),
-		.startGameEn(startGameEn)
-	);
-	
-	//handles logic for user's health
-	health_handler h(
-		.ship_health(ship_health), 
-		.health_update(1'b0), // for now we'll set this to 0
-		.clk(clk),
-		.startGameEn(startGameEn)
-	);
-		
+	always@(posedge clk) begin
+		if(startGameEn)
+			begin
+				x <= 8'b0;
+				y <= 7'b0;
+				clear <= 1'b1;
+			end
+		else 
+			begin
+				// note that if clear is set this cycles from (0,0) up to (159, 119)
+				// setting everything to black until it reaches the lat pixel and
+				// it resets
+				if(clear) begin
+					colour <= black;
+				end
+				else if(x == user_x && y == user_y) begin	
+					colour <= red; 
+				end
+				// draw enemy ship in blue
+				else if(x == enemy_x && y == enemy_y) begin	
+					colour <= blue; 
+				end
+				else if(grid[y*120+x] == 1'b1) begin
+					colour <= green;
+				end
+				// draw bullets in green
+				// but for now we'll just draw the other positions as black to reset the screen
+				else begin
+					colour <= black;
+				end
+				
+				// enumerate the tuples (X,Y) s.t 0 <= X,Y < 160
+				if(x < 8'd160) begin
+					x <= x + 1'b1;
+				end
+				else if(x == 8'd160 && y != 7'd120) begin
+					x <= 8'b0;
+					y <= y + 1'b1;
+				end
+				else if(y == 7'd120 &&  x == 8'd160) begin
+					x <= 8'b0;
+					y <= 7'b0;
+					clear <= 1'b0;
+				end
+			end
+	end
 endmodule

@@ -57,7 +57,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
    // Game related signals, here we will give useful names to the main 
    // signals which will interact with our starflux game
 
-   wire shoot = SW[0]; // tells our game to shoot bullets from our ship
+   wire shoot = SW[0] & (gun_cooldown != 4'b1111); // tells our game to shoot bullets from our ship
    wire pause = SW[1]; // tells our game to pause our current state
    wire reset = SW[2]; // tells our game to start from the beginning state
 
@@ -83,7 +83,9 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
    wire [7:0]alltime_highscore; // 8 bit value, we're to display on lower four
                                 // bits on HEX1 and upper four bits on HEX
 	
-	wire [7:0] user_x, enemy_x; // keeps track of where the user is on the screen
+	wire [7:0] user_x, enemy_x; // keeps track of where the user and enemy are on the screen
+	wire [6:0] user_y = 7'd0, enemy_y = 7'd119; // keep track of where the user and enemy are on the screen
+	
 	wire [7:0] x_val_bullet; // keeps track of the x value of enemy's bullet
 	wire [7:0] y_val_bullet; // keeps track of the y value of enemy's bullet
 	
@@ -117,10 +119,10 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
    );
 	 
 				
-	// Instatiates datapah which makes changes to
-	// our ships and grid, based on the FSM logic from
+	// Instatiates logic controller which makes changes
+	// to our ships and grid, based on the FSM logic from
 	// the controller
-	datapath(
+	logic_handler(
 		.clk(CLOCK_50), 
 		.reset(reset), 
 		.right(right), 
@@ -130,7 +132,9 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 		.shipUpdateEn(shipUpdateEn), 
 		.gridUpdateEn(gridUpdateEn), 
 		.user_x(user_x), 
-		.enemy_x(enemy_x), 
+		.user_y(user_y),
+		.enemy_x(enemy_x),
+		.enemy_y(enemy_y),
 		.gun_cooldown(gun_cooldown), 
 		.grid(grid), 
 		.ship_health(ship_health), 
@@ -141,15 +145,16 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 		.gameover_signal(gameover_signal)
 	);
 	
-
-	// handle logic for displaying stuff to our VGA screen
-	// in this case we handle logic for our selection of 
-	// triplets (X, Y, COLOUR)
-	display d1(
+	// Instatiates datapah  handle logic for displaying stuff
+   //	to our VGA screen in this case we handle logic for our
+   //	selection of triplets (X, Y, COLOUR)
+	datapath d1(
 		.clk(CLOCK_50),
 		.startGameEn(startGameEn),
 		.user_x(user_x),
+		.user_y(user_y),
 		.enemy_x(enemy_x),
+		.enemy_y(enemy_y),
 		.grid(grid),
 		.x(x),
 		.y(y),
@@ -213,7 +218,9 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 		defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
 		defparam VGA.BACKGROUND_IMAGE = "black.mif";
 		
-	
+	// funky stuff we'll display on the LEDs once health
+	// becomes 0 or the usrs reaches the maximum possible 
+	// score FF
 	gameover g(
 		.ledr(LEDR), 
 		.ledg(LEDG), 
