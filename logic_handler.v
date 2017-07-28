@@ -1,4 +1,4 @@
-module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, gridUpdateEn, user_x, user_y, enemy_x, enemy_y, gun_cooldown, grid, ship_health, health_update, current_highscore, alltime_highscore, current_score_update, gameover_signal);
+module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, gridUpdateEn, user_x, user_y, enemy_x, enemy_y, gun_cooldown, grid, ship_health, health_update, hit_count, hit_update current_highscore, alltime_highscore, current_score_update, gameover_signal);
 					 
 	input clk; // default 50mhz clock
 	input reset; // value given from SW[2]
@@ -9,10 +9,12 @@ module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, 
 	input shipUpdateEn; // FSM update signal for ship movement
 	input gridUpdateEn; // FSM update signal for shifting shifter bit grid
 	input health_update; // 1 bit value to update health.
+	input hit_update; // 1 bit value to update the enemy's hit count.
 	input current_score_update; // 1 bit value to update the current score
 	input gameover_signal; // 1 bit value to update the gameover score.
 
 	output [3:0] ship_health; // 4 bit value keeping track of user's ship health
+	output [1:0] hit_count; // 2 bit value keeping track of the enemy's hit count.
 	output [7:0] current_highscore; // 8 bit value keeping track of user's current score
 	output [7:0] alltime_highscore; // 8 bit value keeping track of the all time highscore
  
@@ -45,7 +47,8 @@ module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, 
 	 enemy enm(
 		.clock(clk),
 		.x_val(enemy_x), 
-		.startGameEn(startGameEn)
+		.startGameEn(startGameEn),
+		.hit_count(hit_count)
 	 );
 	
 	// handles the shifter bit logic which keeps
@@ -59,6 +62,13 @@ module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, 
 		.startGameEn(startGameEn)
 	);
 	
+	// handles the logic for the enemy hit count
+	enemy_hit_count e(
+		.hit_count(hit_count), 
+		.clk(clock), 
+		.hit_update(hit_update), 
+		.startGameEn(startGameEn));
+
 	wire current_score_update;
 	wire current_health_update;
 	

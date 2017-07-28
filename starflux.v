@@ -36,9 +36,9 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	input CLOCK_50; // Default 50 Mhz clock on De2 board
 	input [9:0] SW; // Use SW[0] as firing, SW[1] as pause, SW[2] as reset
 	input [3:0] KEY; // use KEY[0:3] as right, down, up, left respectively 
-   output [17:0] LEDR; // no use for this yet, may be bonus
+   	output [17:0] LEDR; // no use for this yet, may be bonus
 	output [8:0] LEDG;
-   output [6:0] HEX0, HEX1, // Display all time high score on HEX[0:1]
+   	output [6:0] HEX0, HEX1, // Display all time high score on HEX[0:1]
                 HEX2, HEX3, // Display current high score on HEX[2:3]
                 HEX4, HEX5; // Display gun's cooldown timer on HEX[4:5]
 
@@ -72,6 +72,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	 
    wire [3:0]ship_health;  // 8 bit value, we're to display lower four bits on 
                            // HEX6, and upper four bits on HEX7
+	wire [1:0] hit_count; // the health of the enemy.
 									
    
 	wire [3:0]gun_cooldown; // 8 bit value, we're to display lower four bits on 
@@ -93,7 +94,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 
    // Instansiate control and datapath variables 
 	wire startGameEn; 
-   wire shipUpdateEn, gridUpdateEn;
+  	wire shipUpdateEn, gridUpdateEn;
 	wire writeEn; // write enable to plot stuff on VGA screen
 	wire gameOverEn; // signalling the ledg and ledr's when the game is in gameover state.
 	wire [2:0] colour; // 3 bit (R,G,B) value to be displatyed on VGA
@@ -102,15 +103,17 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	wire health_update; // 1 bit value to update the health
 	wire current_score_update; // 1 bit value to update the current score
 	wire gameover; // 1 bit value to signal gameover
+	wire hit_update; // 1 bit value which is high if the enemy ship is hit.
+	
 	
 	
    // Instansiate FSM control and writing handler
 	// which determines when we're going to draw stuff
 	// on screen and ours ships and grids
 	control C0(
-        .clk(CLOCK_50),
-        .reset(reset),
-		  .startGameEn(startGameEn),
+        	.clk(CLOCK_50),
+        	.reset(reset),
+		.startGameEn(startGameEn),
 		  .shipUpdateEn(shipUpdateEn), 
 		  .gridUpdateEn(gridUpdateEn),
 		  .writeEn(writeEn),
@@ -139,6 +142,8 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 		.grid(grid), 
 		.ship_health(ship_health), 
 		.health_update(health_update), 
+		.hit_count(hit_count),
+		.hit_update(hit_update),
 		.current_highscore(current_highscore), 
 		.alltime_highscore(alltime_highscore),  
 		.current_score_update(current_score_update), 

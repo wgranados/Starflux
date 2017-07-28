@@ -1,7 +1,19 @@
-module enemy(clock, x_val, startGameEn);
+module enemy(clock, x_val, startGameEn, hitCount);
     input clock; // 50mhz clock from de2 board
-	 input startGameEn;
+    input startGameEn;
+    input [1:0]hitCount;
+    reg [27:0]countdown_start; // stores the count for the clock to pulse and so influences the speed of enemy
     output reg [7:0] x_val; // output values
+    always@(posedge clock)
+    begin 
+	case (hitCount)
+            2'b00: countdown_start = 28'd50000000;
+            2'b01: countdown_start = 28'd20000000;
+            2'b10: countdown_start = 28'd10000000;
+            2'b11: countdown_start = 28'd5000000;  
+            default: countdown_start = 28'd50000000;
+        endcase
+    end
     reg left; // true if the enemy is moving towards left side of the screen
 	 wire [27:0]rd_2hz_out; 
 	 rate_divider rd_2hz(
@@ -21,7 +33,7 @@ module enemy(clock, x_val, startGameEn);
 				x_val <= 8'b0;// If the reset button is clicked then reset the x value and make it go right
 				left <= 1'b0;
 			end
-      else if(!left)
+      		else if(!left)
 			begin
 		    	x_val <= x_val + 1'b1;// increase the x value of enemy when moving to the right
 		    	if(x_val == 8'd120)
@@ -29,7 +41,7 @@ module enemy(clock, x_val, startGameEn);
 					left = 1'b1; // if the enemy reaches the rightmost position of the screen then make it move to the left
 				end		
 			end
-      else if(left)
+      		else if(left)
 			begin
 				x_val <= x_val - 1'b1; 
 				if(x_val == 8'b0) // if the enemy reaches the leftmost position of the screen then make it move to the right.
