@@ -24,7 +24,7 @@ module gun_cooldown_handler(clock, shoot, gun_cooldown_counter, startGameEn);
       .enable(1'b1),
       .countdown_start(28'd99_999_999),
       .clock(clock),
-      .reset(reset),
+      .reset(startGameEn),
       .q(rd_050hz_out)
     );
 

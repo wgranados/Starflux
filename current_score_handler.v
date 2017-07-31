@@ -9,7 +9,7 @@ module current_score_handler(current_highscore, clk, current_score_update, start
 			current_highscore <= 8'b0;
 		end
 		if(current_score_update) begin	
-			current_highscore <= current_highscore + 1'b1;
+			current_highscore <= (current_highscore < 8'hFF) ?  current_highscore + 1'b1 : 8'hFF;
 		end
    end
 

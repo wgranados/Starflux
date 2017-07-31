@@ -19,7 +19,8 @@ module shifter_grid(startGameEn, shoot, clock, gridUpdateEn, user_x, enemy_x, gr
 		.q(rd_1hz_out)
 	 );
 	 
-	 wire shift_right_enable = rd_1hz_out == 28'b0 ? 1:0;
+
+	 wire shift_right_enable = rd_1hz_out == 28'b0 ? 1'b1 : 1'b0;
 	 
 	 // generate 160 shifter bit lines, each consisting of 
 	 // 120 shifter bits.
@@ -86,7 +87,8 @@ module shifter_bit(in, load_val, shift, load_n, ignore_load_n, clk, reset_n, out
 	output out; // output of value in shifter bit, generally sent to shifter bit on right
   
 	wire mux_one_out, mux_two_out;
-	wire load_val_decider = ~ignore_load_n | load_n; // if ignore_load_n is high we load values from mux_one_out
+
+	wire load_val_decider = (load_n) & (~ignore_load_n); // if ignore_load_n is high we load values from mux_one_out
   
 	// determine's whether to shift the bit or not
 	mux2to1 mux_one(
@@ -97,8 +99,8 @@ module shifter_bit(in, load_val, shift, load_n, ignore_load_n, clk, reset_n, out
 	);
 	// determine's whether to load the value from load_val or from in(from left shifter_bit)
 	mux2to1 mux_two(
-		.x(load_val),
-		.y(mux_one_out),
+		.x(mux_one_out),
+		.y(load_val),
 		.s(load_val_decider),
 		.m(mux_two_out)
 	);
@@ -133,7 +135,7 @@ module shifter(load_val, load_n, shift_right, ASR, clk, reset_n, Q);
 				  .load_val(load_val), 
 				  .shift(shift_right), 
 				  .load_n(load_n), 
-				  .ignore_load_n(i == 0 ? 1'b0 : 1'b1), // ignore load_n on every shifter bit but the first one at Q[0]
+				  .ignore_load_n(~(i == 0)), // ignore load_n on every shifter bit but the first one at Q[0]
 				  .clk(clk), 
 				  .reset_n(reset_n), 
 				  .out(sb_out[i]) 

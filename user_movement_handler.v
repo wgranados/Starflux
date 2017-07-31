@@ -9,7 +9,7 @@ module user_movement_handler(clock, right, left, x_val, startGameEn);
 			.enable(1'b1),
 			.countdown_start(28'd3_125_000),
 			.clock(clock),
-			.reset(reset),
+			.reset(startGameEn),
 			.q(rd_16hz_out)
 	 );
 	 

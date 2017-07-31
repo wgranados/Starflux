@@ -1,6 +1,7 @@
-module collision_handler(grid, clock, current_score_update, current_health_update, user_x, user_y, enemy_x, enemy_y);
+module collision_handler(grid, clock, startGameEn, current_score_update, current_health_update, user_x, user_y, enemy_x, enemy_y);
 	input [160*120-1:0]grid;
 	input clock;
+	input startGameEn;
 	input [7:0] user_x;
 	input [6:0] user_y;
 	input [7:0] enemy_x;
@@ -14,7 +15,7 @@ module collision_handler(grid, clock, current_score_update, current_health_updat
 			.enable(1'b1),
 			.countdown_start(28'd1_499_999),
 			.clock(clock),
-			.reset(reset),
+			.reset(startGameEn),
 			.q(rd_2hz_out)
 	 );
 	  

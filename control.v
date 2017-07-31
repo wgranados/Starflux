@@ -1,9 +1,10 @@
-module control(clk, reset, startGameEn ,shipUpdateEn, gridUpdateEn, writeEn, gameOverEn, ship_health);
+module control(clk, reset, startGameEn ,shipUpdateEn, gridUpdateEn, writeEn, gameOverEn, ship_health, current_highscore);
 	input clk; // normal 50 Mhz clock passed by de2 board
 	input reset; // reset signal given by SW[2] 
-	input ship_health;
+	input [3:0]ship_health; // used for determing game over state
+	input [7:0]current_highscore; // used for determining game over state
 	
-	output reg startGameEn;
+	output reg startGameEn; // used for resetting variables globally
 	output reg shipUpdateEn; // update the ship
 	output reg gridUpdateEn; // update the grid
 	output reg writeEn; // enable writes to vga output
@@ -27,17 +28,16 @@ module control(clk, reset, startGameEn ,shipUpdateEn, gridUpdateEn, writeEn, gam
 			.q(rd_16hz_out)
 	 );
 	 
-	 wire go = (rd_16hz_out == 28'b0) ? 1:0;
+	 wire go = (rd_16hz_out == 28'b0) ? 1'b1 : 1'b0;
 				
-	
   
     always@(*)
     begin: state_table
         case (current_state)
             S_START_GAME:      next_state = go ? S_DRAW: S_START_GAME;
             S_DRAW: 				 next_state = go ? S_UPDATE: S_DRAW;
-            S_UPDATE:          next_state = ((ship_health == 8'b0) ? S_GAMEOVER: (go ? S_DRAW : S_UPDATE));
-				S_GAMEOVER:        next_state = go ? S_START_GAME:S_GAMEOVER;
+            S_UPDATE:          next_state = ((ship_health == 4'b0 | current_highscore == 8'hFF) ? S_GAMEOVER: (go ? S_DRAW : S_UPDATE));
+				S_GAMEOVER:			 next_state = S_GAMEOVER;
             default:           next_state = S_START_GAME;
         endcase
     end 

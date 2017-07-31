@@ -28,7 +28,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-module starflux (CLOCK_50, KEY, SW, LEDR, LEDG, 
+module starflux (CLOCK_50, KEY, SW, LEDR, 
                  HEX0, HEX1, HEX2, HEX3, HEX4, HEX5,
                  VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N,
                  VGA_SYNC_N, VGA_R, VGA_G, VGA_B);
@@ -36,9 +36,8 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	input CLOCK_50; // Default 50 Mhz clock on De2 board
 	input [9:0] SW; // Use SW[0] as firing, SW[1] as pause, SW[2] as reset
 	input [3:0] KEY; // use KEY[0:3] as right, down, up, left respectively 
-   	output [17:0] LEDR; // no use for this yet, may be bonus
-	output [8:0] LEDG;
-   	output [6:0] HEX0, HEX1, // Display all time high score on HEX[0:1]
+   output [9:0] LEDR; // no use for this yet, may be bonus
+   output [6:0] HEX0, HEX1, // Display all time high score on HEX[0:1]
                 HEX2, HEX3, // Display current high score on HEX[2:3]
                 HEX4, HEX5; // Display gun's cooldown timer on HEX[4:5]
 
@@ -109,11 +108,12 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
         	.clk(CLOCK_50),
         	.reset(reset),
 			.startGameEn(startGameEn),
-		  .shipUpdateEn(shipUpdateEn), 
-		  .gridUpdateEn(gridUpdateEn),
-		  .writeEn(writeEn),
-		  .gameOverEn(gameOverEn),
-		  .ship_health(ship_health)
+			.shipUpdateEn(shipUpdateEn), 
+			.gridUpdateEn(gridUpdateEn),
+			.writeEn(writeEn),
+			.gameOverEn(gameOverEn),
+			.ship_health(ship_health),
+			.current_highscore(current_highscore)
    );
 	 
 				
@@ -121,7 +121,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	// to our ships and grid, based on the FSM logic from
 	// the controller
 	logic_handler(
-		.clk(CLOCK_50), 
+		.clk(~gameOverEn & CLOCK_50), 
 		.reset(reset), 
 		.right(right), 
 		.left(left), 
@@ -137,15 +137,14 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 		.grid(grid), 
 		.ship_health(ship_health), 
 		.current_highscore(current_highscore), 
-		.alltime_highscore(alltime_highscore),  
-		.gameover_signal(gameover_signal)
+		.alltime_highscore(alltime_highscore)
 	);
 	
 	// Instatiates datapah  handle logic for displaying stuff
    //	to our VGA screen in this case we handle logic for our
    //	selection of triplets (X, Y, COLOUR)
 	datapath d1(
-		.clk(CLOCK_50),
+		.clk(~gameOverEn & CLOCK_50),
 		.startGameEn(startGameEn),
 		.user_x(user_x),
 		.user_y(user_y),
@@ -217,12 +216,14 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	// funky stuff we'll display on the LEDs once health
 	// becomes 0 or the usrs reaches the maximum possible 
 	// score FF
-	gameover g(
-		.ledr(LEDR), 
-		.ledg(LEDG), 
+	gameoverDE1SOC game_over(
+		.ledr(LEDR[8:0]), 
 		.clk(CLOCK_50), 
+		.reset(reset),
 		.gameover(gameOverEn)
 	);
+	assign LEDR[9] = gameOverEn;
 
+	
 
 endmodule

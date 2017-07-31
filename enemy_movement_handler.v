@@ -9,7 +9,7 @@ module enemy_movement_handler(clock, x_val, startGameEn);
 			.enable(1'b1),
 			.countdown_start(28'd24_99_999), // 24,999,99 in dec
 			.clock(clock),
-			.reset(reset),
+			.reset(startGameEn),
 			.q(rd_2hz_out)
 	 );
 	  

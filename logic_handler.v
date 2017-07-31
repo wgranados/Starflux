@@ -1,4 +1,4 @@
-module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, gridUpdateEn, user_x, user_y, enemy_x, enemy_y, gun_cooldown, grid, ship_health, current_highscore, alltime_highscore, gameover_signal);
+module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, gridUpdateEn, user_x, user_y, enemy_x, enemy_y, gun_cooldown, grid, ship_health, current_highscore, alltime_highscore);
 					 
 	input clk; // default 50mhz clock
 	input reset; // value given from SW[2]
@@ -8,7 +8,6 @@ module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, 
 	input startGameEn; // FSM reset signal to reset everything
 	input shipUpdateEn; // FSM update signal for ship movement
 	input gridUpdateEn; // FSM update signal for shifting shifter bit grid
-	input gameover_signal; // 1 bit value to update the gameover score.
 
 	output [3:0] ship_health; // 4 bit value keeping track of user's ship health
 	output [7:0] current_highscore; // 8 bit value keeping track of user's current score
@@ -78,6 +77,7 @@ module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, 
 		.enemy_x(enemy_x),
 		.enemy_y(enemy_y)
 	);
+
 	
 	// handles logic for current highscore
 	current_score_handler csh(
@@ -94,7 +94,6 @@ module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, 
 		.clk(clk),
 		.startGameEn(startGameEn)
 	);
-	
 	
 	//handles logic for user's health
 	health_handler h(
