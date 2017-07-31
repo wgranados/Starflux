@@ -30,6 +30,13 @@ module collision_handler(grid, clock, startGameEn, current_score_update, current
 		else begin
 			 current_score_update <= 1'b0;
 		end
+		
+		if(grid[120*user_x+(119-user_y)] == 1'b1)begin
+			 current_health_update <= 1'b1;
+		end
+		else begin
+			 current_health_update <= 1'b0;
+		end
 	
 	end
 	
