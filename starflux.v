@@ -83,9 +83,9 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
                                 // bits on HEX1 and upper four bits on HEX
 	
 	wire [7:0] user_x, enemy_x; // keeps track of where the user and enemy are on the screen
-	wire [6:0] user_y = 7'd0, enemy_y = 7'd119; // keep track of where the user and enemy are on the screen
+	wire [6:0] user_y = 7'd119, enemy_y = 7'd0; // keep track of where the user and enemy are on the screen
 	
-	wire [160*120-1:0]grid; // grid we're gonna use for the shifter bit modules
+	wire [160*120-10:0]enem_grid; // grid we're gona use for the shifter bit modules for enemy ship
 
    // Instansiate control and datapath variables 
 	wire startGameEn; 
@@ -95,9 +95,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	wire [2:0] colour; // 3 bit (R,G,B) value to be displatyed on VGA
 	wire [7:0] x; // 8 bit x value because of our screen resolution
 	wire [6:0] y; // 7 bit y value because of our screen resolution
-	wire health_update; // 1 bit value to update the health
 	wire gameover; // 1 bit value to signal gameover
-	wire hit_update; // 1 bit value which is high if the enemy ship is hit.
 	
 	
 	
@@ -134,7 +132,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 		.enemy_x(enemy_x),
 		.enemy_y(enemy_y),
 		.gun_cooldown(gun_cooldown), 
-		.grid(grid), 
+		.enem_grid(enem_grid),
 		.ship_health(ship_health), 
 		.current_highscore(current_highscore), 
 		.alltime_highscore(alltime_highscore)
@@ -150,7 +148,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 		.user_y(user_y),
 		.enemy_x(enemy_x),
 		.enemy_y(enemy_y),
-		.grid(grid),
+		.enem_grid(enem_grid),
 		.x(x),
 		.y(y),
 		.colour(colour)

@@ -1,11 +1,9 @@
-module shifter_grid(startGameEn, shoot, clock, gridUpdateEn, user_x, enemy_x, grid);
+module shifter_grid(startGameEn, shoot, clock, gridUpdateEn, user_x, grid);
     input startGameEn; // reset the grid from SW[2]
     input shoot; // shoot input from SW[1]
     input clock; // default 50mhz clock input
 	 input gridUpdateEn;
     input [7:0]user_x; // player's position on the x plane
-	 input [7:0]enemy_x; // enemy's position on the x plane
-
     output [160*120-1:0]grid; // 2d grid we're doing logic on, interperet it as paritions of 120
 	 
 	 
@@ -122,14 +120,14 @@ module shifter(load_val, load_n, shift_right, ASR, clk, reset_n, Q);
 	input clk; // global clock to use for all of our flip flops
 	input reset_n; // global reset_n value for all our flip fops in shifter_bits, which sets their output/value to 0
   
-	output [120:0]Q; // output register (in this case grid, which is to be displayed on VGA) we're to show value of shifter on
+	output [119:0]Q; // output register (in this case grid, which is to be displayed on VGA) we're to show value of shifter on
   
-	wire [120:0]sb_out;
+	wire [119:0]sb_out;
   
 	genvar i;
 	generate
   
-		for(i = 0;i <= 120;i = i+1) begin: shifter_bit_init
+		for(i = 0;i < 120;i = i+1) begin: shifter_bit_init
 			  shifter_bit sb_i(
 				  .in( (i == 0 ? ASR & load_val : sb_out[i-1]) ), 
 				  .load_val(load_val), 
@@ -145,7 +143,7 @@ module shifter(load_val, load_n, shift_right, ASR, clk, reset_n, Q);
   
 	endgenerate
   
-	assign Q = sb_out[120:0];
+	assign Q = sb_out[119:0];
   
   
 endmodule

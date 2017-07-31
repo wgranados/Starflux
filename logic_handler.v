@@ -1,4 +1,4 @@
-module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, gridUpdateEn, user_x, user_y, enemy_x, enemy_y, gun_cooldown, grid, ship_health, current_highscore, alltime_highscore);
+module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, gridUpdateEn, user_x, user_y, enemy_x, enemy_y, gun_cooldown, enem_grid, ship_health, current_highscore, alltime_highscore);
 					 
 	input clk; // default 50mhz clock
 	input reset; // value given from SW[2]
@@ -18,16 +18,27 @@ module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, 
 	output reg [7:0] enemy_x; // 8 bit value keeping track of the enemy's x position on the vga
 	input [6:0] enemy_y; // 7 bit value keeping track of the enemy's y position on the vga
 	output reg [3:0] gun_cooldown; // 4 bit value keeping trck of the gun's cooldown, overheats when it reaches 4'b1111
-	output reg [160*120-1:0] grid; // 2D grid reprsentation for our 160x120 pixel screen, where each grid[y*120+x] represents an active bullet 
+	output reg [160*120-1:0] enem_grid; // 2D grid reprsentation for our 160x120 pixel screen, where each grid[y*120+x] represents an active bullet
+   
+	
+	
+	wire enemy_shoot;	
 
+	enemy_gun_handler gun(
+		.clock(clk),
+		.gun_cooldown(gun_cooldown),  
+		.startGameEn(startGameEn),
+		.enemy_shoot(enemy_shoot)
+	);
 	 
 	 // handles logic for  gun cooldown
-	gun_cooldown_handler gc(
+	 gun_cooldown_handler gc(
 		.clock(clk),
-		.shoot(shoot),
+		.shoot(enemy_shoot),
 		.gun_cooldown_counter(gun_cooldown),
 		.startGameEn(startGameEn)
 	 );
+	 
 	
 	 // handles logic for moving left and right
 	 user_movement_handler user_mv(
@@ -45,37 +56,44 @@ module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, 
 		.startGameEn(startGameEn)
 	 );
 	
+	
 	// handles the shifter bit logic which keeps
 	// track of all the bullets
-	shifter_grid sh_user(
-		.shoot(shoot),
+	shifter_grid sh_enem(
+		.shoot(enemy_shoot),
 		.clock(clk),
-		.user_x(user_x),
-		.enemy_x(enemy_x),
-		.grid(grid),
+		.user_x(enemy_x),
+		.grid(enem_grid),
+		.gridUpdateEn(gridUpdateEn),
 		.startGameEn(startGameEn)
 	);
-	
-	// handles the logic for the enemy hit count
-	//enemy_hit_count e(
-	//	.hit_count(hit_count), 
-	//	.clk(clock), 
-	//	.hit_update(hit_update), 
-	//	.startGameEn(startGameEn));
 
 	wire current_score_update;
 	wire current_health_update;
 	
+	 wire [27:0]rd_2hz_out; 
+	 rate_divider rd_2hz(
+			.enable(1'b1),
+			.countdown_start(28'd24_999_999),
+			.clock(clk),
+			.reset(startGameEn),
+			.q(rd_2hz_out)
+	 );
+	  
+	 assign current_score_update = (rd_2hz_out == 28'b0) ? 1'b1 : 1'b0;
+	
 	// handles collision logic for our stuff
 	collision_handler ch(
-		.grid(grid),
 		.clock(clk),
-	   .current_score_update(current_score_update),
+		
 		.current_health_update(current_health_update),
+		
 		.user_x(user_x),
 		.user_y(user_y),
+		
 		.enemy_x(enemy_x),
-		.enemy_y(enemy_y)
+		.enemy_y(enemy_y),
+		.enem_grid(enem_grid)
 	);
 
 	
@@ -102,5 +120,6 @@ module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, 
 		.clk(clk),
 		.startGameEn(startGameEn)
 	);
+	
 		
 endmodule
