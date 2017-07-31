@@ -152,5 +152,12 @@ and now we only need to complete the requirements of the shifter grid for full f
 LED flash show into our FSM state. For next week we plan to finalize the shifter bit logic into  our project, and handle collision detection
 for our the ships and bullets. We also plan to enhance the enemy behaviour when they are hit by bullet, specifically we wil make them faster.
 
-
+Week 4: We finalized the 2D shifter bit functionality that was desired and as a result we managed to finalize the bullet collision with the 
+ships. One major change that made was instead of two ships shooting at each other, we made the game into a bullet dodging game where if the user 
+gets hit by the enemy's bullet then the user instantly dies. The score for the game is based on how long the user manages to survive. With this change
+also came the change of HEX4, where it counts from 0 to F and upon reaching F the user is given break until the next barrage of bullets. We also implemented
+pausing functionality for the game using switch 1. We also had to debug design issues and compiler issues. Some issues we had were using division and modulo
+to determine the pixel to draw on the datapath but we discovered that the division and modulo operator are expensive and take multiple clock cycles to complete.
+Another issue is verilog creating implicit types for variables with typos and therefore we spent a long time finding the implicit types. We also had huge 
+compilation times approximately 40 minutes each time which took longer to find the bugs.  
 
