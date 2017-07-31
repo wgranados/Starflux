@@ -43,7 +43,7 @@ module datapath(clk, startGameEn, user_x, user_y, enemy_x, enemy_y, grid, x, y, 
 				else if(x == enemy_x && y == enemy_y) begin	
 					colour <= blue; 
 				end
-				else if(grid[y*120+x] == 1'b1) begin
+				else if(grid[120*x+y] == 1'b1) begin
 					colour <= green;
 				end
 				// draw bullets in green

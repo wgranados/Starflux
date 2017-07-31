@@ -57,7 +57,8 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
    // Game related signals, here we will give useful names to the main 
    // signals which will interact with our starflux game
 
-   wire shoot = SW[0] & (gun_cooldown != 4'b1111); // tells our game to shoot bullets from our ship
+
+   wire shoot = SW[0] & (gun_cooldown != 4'hF); // tells our game to shoot bullets from our ship
    wire pause = SW[1]; // tells our game to pause our current state
    wire reset = SW[2]; // tells our game to start from the beginning state
 
@@ -71,9 +72,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	 
 	 
    wire [3:0]ship_health;  // 8 bit value, we're to display lower four bits on 
-                           // HEX6, and upper four bits on HEX7
-	wire [1:0] hit_count; // the health of the enemy.
-									
+                           // HEX6, and upper four bits on HEX7									
    
 	wire [3:0]gun_cooldown; // 8 bit value, we're to display lower four bits on 
                            // 4 and upper four bits HEX5
@@ -87,9 +86,6 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	wire [7:0] user_x, enemy_x; // keeps track of where the user and enemy are on the screen
 	wire [6:0] user_y = 7'd0, enemy_y = 7'd119; // keep track of where the user and enemy are on the screen
 	
-	wire [7:0] x_val_bullet; // keeps track of the x value of enemy's bullet
-	wire [7:0] y_val_bullet; // keeps track of the y value of enemy's bullet
-	
 	wire [160*120-1:0]grid; // grid we're gonna use for the shifter bit modules
 
    // Instansiate control and datapath variables 
@@ -101,7 +97,6 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	wire [7:0] x; // 8 bit x value because of our screen resolution
 	wire [6:0] y; // 7 bit y value because of our screen resolution
 	wire health_update; // 1 bit value to update the health
-	wire current_score_update; // 1 bit value to update the current score
 	wire gameover; // 1 bit value to signal gameover
 	wire hit_update; // 1 bit value which is high if the enemy ship is hit.
 	
@@ -113,7 +108,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	control C0(
         	.clk(CLOCK_50),
         	.reset(reset),
-		.startGameEn(startGameEn),
+			.startGameEn(startGameEn),
 		  .shipUpdateEn(shipUpdateEn), 
 		  .gridUpdateEn(gridUpdateEn),
 		  .writeEn(writeEn),
@@ -141,12 +136,8 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 		.gun_cooldown(gun_cooldown), 
 		.grid(grid), 
 		.ship_health(ship_health), 
-		.health_update(health_update), 
-		.hit_count(hit_count),
-		.hit_update(hit_update),
 		.current_highscore(current_highscore), 
 		.alltime_highscore(alltime_highscore),  
-		.current_score_update(current_score_update), 
 		.gameover_signal(gameover_signal)
 	);
 	
@@ -232,8 +223,6 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 		.clk(CLOCK_50), 
 		.gameover(gameOverEn)
 	);
-
-
 
 
 endmodule

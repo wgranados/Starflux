@@ -1,4 +1,4 @@
-module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, gridUpdateEn, user_x, user_y, enemy_x, enemy_y, gun_cooldown, grid, ship_health, health_update, hit_count, hit_update current_highscore, alltime_highscore, current_score_update, gameover_signal);
+module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, gridUpdateEn, user_x, user_y, enemy_x, enemy_y, gun_cooldown, grid, ship_health, current_highscore, alltime_highscore, gameover_signal);
 					 
 	input clk; // default 50mhz clock
 	input reset; // value given from SW[2]
@@ -8,13 +8,9 @@ module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, 
 	input startGameEn; // FSM reset signal to reset everything
 	input shipUpdateEn; // FSM update signal for ship movement
 	input gridUpdateEn; // FSM update signal for shifting shifter bit grid
-	input health_update; // 1 bit value to update health.
-	input hit_update; // 1 bit value to update the enemy's hit count.
-	input current_score_update; // 1 bit value to update the current score
 	input gameover_signal; // 1 bit value to update the gameover score.
 
 	output [3:0] ship_health; // 4 bit value keeping track of user's ship health
-	output [1:0] hit_count; // 2 bit value keeping track of the enemy's hit count.
 	output [7:0] current_highscore; // 8 bit value keeping track of user's current score
 	output [7:0] alltime_highscore; // 8 bit value keeping track of the all time highscore
  
@@ -35,7 +31,7 @@ module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, 
 	 );
 	
 	 // handles logic for moving left and right
-	 movement_handler mv(
+	 user_movement_handler user_mv(
 		.clock(clk),
 		.right(right),
 		.left(left),
@@ -44,16 +40,15 @@ module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, 
 	 );
 	 
 	 // handles the logic for moving the enemy
-	 enemy enm(
+	 enemy_movement_handler enemy_mv(
 		.clock(clk),
 		.x_val(enemy_x), 
-		.startGameEn(startGameEn),
-		.hit_count(hit_count)
+		.startGameEn(startGameEn)
 	 );
 	
 	// handles the shifter bit logic which keeps
 	// track of all the bullets
-	shifter_grid sh(
+	shifter_grid sh_user(
 		.shoot(shoot),
 		.clock(clk),
 		.user_x(user_x),
@@ -63,39 +58,43 @@ module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, 
 	);
 	
 	// handles the logic for the enemy hit count
-	enemy_hit_count e(
-		.hit_count(hit_count), 
-		.clk(clock), 
-		.hit_update(hit_update), 
-		.startGameEn(startGameEn));
+	//enemy_hit_count e(
+	//	.hit_count(hit_count), 
+	//	.clk(clock), 
+	//	.hit_update(hit_update), 
+	//	.startGameEn(startGameEn));
 
 	wire current_score_update;
 	wire current_health_update;
 	
 	// handles collision logic for our stuff
-	//collision_handler ch(
-	//	.grid(grid),
-	//   .current_score_update(current_score_update),
-	//	.current_health_update(current_health_update),
-	//	.user_x(user_x),
-	//	.enemy_x(enemy_x)
-	//);
+	collision_handler ch(
+		.grid(grid),
+		.clock(clock),
+	   .current_score_update(current_score_update),
+		.current_health_update(current_health_update),
+		.user_x(user_x),
+		.user_y(user_y),
+		.enemy_x(enemy_x),
+		.enemy_y(enemy_y)
+	);
+	
+	// handles logic for current highscore
+	current_score_handler csh(
+		.current_highscore(current_highscore),
+		.current_score_update(current_score_update),
+		.clk(clk),
+		.startGameEn(startGameEn)
+	);
 	
 	// handles logic for all time highscore
-	best_score_handler a(
+	best_score_handler bsh(
 		.current_highscore(current_highscore),	
 		.alltime_highscore(alltime_highscore), 
 		.clk(Clk),
 		.startGameEn(startGameEn)
 	);
 	
-	// handles logic for current highscore
-	current_score_handler csh(
-		.current_highscore(current_highscore),
-		.current_score_update(current_score_update), // for now, we'll set this to 0
-		.clk(clk),
-		.startGameEn(startGameEn)
-	);
 	
 	//handles logic for user's health
 	health_handler h(
