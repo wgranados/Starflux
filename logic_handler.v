@@ -70,7 +70,7 @@ module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, 
 	// handles collision logic for our stuff
 	collision_handler ch(
 		.grid(grid),
-		.clock(clock),
+		.clock(clk),
 	   .current_score_update(current_score_update),
 		.current_health_update(current_health_update),
 		.user_x(user_x),
@@ -91,7 +91,7 @@ module logic_handler(clk, reset, right, left, shoot, startGameEn, shipUpdateEn, 
 	best_score_handler bsh(
 		.current_highscore(current_highscore),	
 		.alltime_highscore(alltime_highscore), 
-		.clk(Clk),
+		.clk(clk),
 		.startGameEn(startGameEn)
 	);
 	

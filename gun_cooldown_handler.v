@@ -13,7 +13,7 @@ module gun_cooldown_handler(clock, shoot, gun_cooldown_counter, startGameEn);
 		.enable(1'b1),
 		.countdown_start(28'd49_999_999),
 		.clock(clock),
-		.reset(reset),
+		.reset(startGameEn),
 		.q(rd_1hz_out)
 	);
 
@@ -40,5 +40,5 @@ module gun_cooldown_handler(clock, shoot, gun_cooldown_counter, startGameEn);
 		if(gun_cooldown_enable & !shoot)
             gun_cooldown_counter = (gun_cooldown_counter > 4'b0000) ? gun_cooldown_counter - 1'b1 : 4'b0000;
 	end
-    assign gun_cooldown_out = gun_cooldown_counter;
+
 endmodule

@@ -13,13 +13,13 @@ module shifter_grid(startGameEn, shoot, clock, gridUpdateEn, user_x, enemy_x, gr
 	 wire [27:0]rd_1hz_out; 
 	 rate_divider rd_1hz(
 		.enable(1'b1),
-		.countdown_start(28'd49_999_999),
+		.countdown_start(28'd3_125_000),
 		.clock(clock),
 		.reset(startGameEn),
 		.q(rd_1hz_out)
 	 );
 	 
-	 wire shit_right_enable = rd_1hz_out == 28'b0 ? 1'b1 : 1'b0;
+	 wire shift_right_enable = rd_1hz_out == 28'b0 ? 1:0;
 	 
 	 // generate 160 shifter bit lines, each consisting of 
 	 // 120 shifter bits.
@@ -29,11 +29,11 @@ module shifter_grid(startGameEn, shoot, clock, gridUpdateEn, user_x, enemy_x, gr
 		 for(i = 0;i < 160;i = i+1) begin: shifter_grids
 				shifter shift_i(
 					// only load_val value we care about is at the first shifter bit
-					.load_val(shoot & (user_x == i) ),
+					.load_val(user_x == i & shoot),
 					.load_n(shoot),
 					.shift_right(shift_right_enable),
 					.ASR(1'b0),
-					.clk(clock | shift_right_enable),
+					.clk(clock),
 					.reset_n(startGameEn),
 					// interpret partitions like 0..120, 121...140, and
 					// have the shifterbit logic be outputed on these parts
@@ -74,24 +74,41 @@ module flipflop(d, q, clock, reset_n);
     end
 endmodule
 
-module shifter_bit(in, load_val, shift, load_n, clk, reset_n, out);
+module shifter_bit(in, load_val, shift, load_n, ignore_load_n, clk, reset_n, out);
 	// Note that these should all be 1 bit inputs as we're really only handling/storing one bit of information in shifter bit
 	input in; // connected to out port of left shifter, 0 otherwise on left most shifter bit
 	input load_val; // input given from switches, used onlywhen shift = 0
 	input shift;  // indicates to shift all bits right 
 	input load_n; // indicates to load input from switches
+	input ignore_load_n; // ignore signal from load_n
 	input clk;  // clock used for flip flop
 	input reset_n;  // reset signal to set shifter bit's value to 0 
-	output reg out; // output of value in shifter bit, generally sent to shifter bit on right
+	output out; // output of value in shifter bit, generally sent to shifter bit on right
+  
+	wire mux_one_out, mux_two_out;
+	wire load_val_decider = ~ignore_load_n | load_n; // if ignore_load_n is high we load values from mux_one_out
   
 	// determine's whether to shift the bit or not
-	always @(posedge clk)
-	begin
-		if(reset_n == 1'b1)
-			out <= 1'b0;
-		else
-			out <= load_val;
-	end
+	mux2to1 mux_one(
+		.x(out),
+		.y(in),
+		.s(shift),
+		.m(mux_one_out)
+	);
+	// determine's whether to load the value from load_val or from in(from left shifter_bit)
+	mux2to1 mux_two(
+		.x(load_val),
+		.y(mux_one_out),
+		.s(load_val_decider),
+		.m(mux_two_out)
+	);
+	// determine's logic for what bit should be sent to next shifter_bit module
+	flipflop flip_flop(
+		.d(mux_two_out),
+		.q(out),
+		.clock(clk),
+		.reset_n(reset_n)
+	);
 
 endmodule
 
@@ -109,13 +126,14 @@ module shifter(load_val, load_n, shift_right, ASR, clk, reset_n, Q);
   
 	genvar i;
 	generate
- 
-		for(i = 0;i < 121;i = i+1) begin: shifter_bit_init
+  
+		for(i = 0;i <= 120;i = i+1) begin: shifter_bit_init
 			  shifter_bit sb_i(
 				  .in( (i == 0 ? ASR & load_val : sb_out[i-1]) ), 
 				  .load_val(load_val), 
 				  .shift(shift_right), 
 				  .load_n(load_n), 
+				  .ignore_load_n(i == 0 ? 1'b0 : 1'b1), // ignore load_n on every shifter bit but the first one at Q[0]
 				  .clk(clk), 
 				  .reset_n(reset_n), 
 				  .out(sb_out[i]) 
@@ -129,4 +147,3 @@ module shifter(load_val, load_n, shift_right, ASR, clk, reset_n, Q);
   
   
 endmodule
-
