@@ -121,7 +121,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	// to our ships and grid, based on the FSM logic from
 	// the controller
 	logic_handler(
-		.clk(~gameOverEn & CLOCK_50), 
+		.clk( (~gameOverEn & ~pause) & CLOCK_50), 
 		.reset(reset), 
 		.right(right), 
 		.left(left), 
@@ -144,7 +144,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
    //	to our VGA screen in this case we handle logic for our
    //	selection of triplets (X, Y, COLOUR)
 	datapath d1(
-		.clk(~gameOverEn & CLOCK_50),
+		.clk((~gameOverEn & ~pause)& CLOCK_50),
 		.startGameEn(startGameEn),
 		.user_x(user_x),
 		.user_y(user_y),

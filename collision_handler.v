@@ -13,7 +13,7 @@ module collision_handler(grid, clock, startGameEn, current_score_update, current
 	 wire [27:0]rd_2hz_out; 
 	 rate_divider rd_2hz(
 			.enable(1'b1),
-			.countdown_start(28'd1_499_999),
+			.countdown_start(28'd3_125_000),
 			.clock(clock),
 			.reset(startGameEn),
 			.q(rd_2hz_out)
