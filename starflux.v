@@ -1,34 +1,4 @@
-// BSD 3-Clause License
-// 
-// Copyright (c) 2017, William Granados, Saskia Tjioe, Venkada Naraisman Prasad
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-// 
-// * Redistributions of source code must retain the above copyright notice, this
-//   list of conditions and the following disclaimer.
-// 
-// * Redistributions in binary form must reproduce the above copyright notice,
-//   this list of conditions and the following disclaimer in the documentation
-//   and/or other materials provided with the distribution.
-// 
-// * Neither the name of the copyright holder nor the names of its
-//   contributors may be used to endorse or promote products derived from
-//   this software without specific prior written permission.
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-module starflux (CLOCK_50, KEY, SW, LEDR, 
+module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
                  HEX0, HEX1, HEX2, HEX3, HEX4, HEX5,
                  VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N,
                  VGA_SYNC_N, VGA_R, VGA_G, VGA_B);
@@ -36,10 +6,13 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	input CLOCK_50; // Default 50 Mhz clock on De2 board
 	input [9:0] SW; // Use SW[0] as firing, SW[1] as pause, SW[2] as reset
 	input [3:0] KEY; // use KEY[0:3] as right, down, up, left respectively 
-   output [9:0] LEDR; // no use for this yet, may be bonus
-   output [6:0] HEX0, HEX1, // Display all time high score on HEX[0:1]
-                HEX2, HEX3, // Display current high score on HEX[2:3]
-                HEX4, HEX5; // Display gun's cooldown timer on HEX[4:5]
+	
+	output [17:0] LEDR; // LED flash show
+	output [8:0] LEDG; // LED flash show
+	
+	output [6:0] 	HEX0, HEX1, // Display all time high score on HEX[0:1]
+						HEX2, HEX3, // Display current high score on HEX[2:3]
+						HEX4, HEX5; // Display gun's cooldown timer on HEX[4:5]
 
 	// Declare your inputs and outputs here
 	// Do not change the following outputs
@@ -53,33 +26,33 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	output [9:0] VGA_B;   			//	VGA Blue[9:0]
 	
 
-   // Game related signals, here we will give useful names to the main 
-   // signals which will interact with our starflux game
+	// Game related signals, here we will give useful names to the main 
+	// signals which will interact with our starflux game
 
 
-   wire shoot = SW[0] & (gun_cooldown != 4'hF); // tells our game to shoot bullets from our ship
-   wire pause = SW[1]; // tells our game to pause our current state
-   wire reset = SW[2]; // tells our game to start from the beginning state
+	wire shoot = SW[0] & (gun_cooldown != 4'hF); // tells our game to shoot bullets from our ship
+	wire pause = SW[1]; // tells our game to pause our current state
+	wire reset = SW[2]; // tells our game to start from the beginning state
 
-   wire right = ~KEY[0]; // tells our game to move our ship right
-   wire down  = ~KEY[1]; // tells our healthgame to move our ship down
-   wire up    = ~KEY[2]; // tells our game to move our ship up
-   wire left  = ~KEY[3]; // tells our game to move our ship left 
+	wire right = ~KEY[0]; // tells our game to move our ship right
+	wire down  = ~KEY[1]; // tells our healthgame to move our ship down
+	wire up    = ~KEY[2]; // tells our game to move our ship up
+	wire left  = ~KEY[3]; // tells our game to move our ship left 
 
-   // Game logic related signals, this is where we'll keep a top level overview
+	// Game logic related signals, this is where we'll keep a top level overview
 	// of the modules required for our games. 
 	 
 	 
-   wire [3:0]ship_health;  // 8 bit value, we're to display lower four bits on 
+	wire [3:0]ship_health;  // 8 bit value, we're to display lower four bits on 
                            // HEX6, and upper four bits on HEX7									
    
 	wire [3:0]gun_cooldown; // 8 bit value, we're to display lower four bits on 
                            // 4 and upper four bits HEX5
 
-   wire [7:0]current_highscore; // 8 bit value, we're to display on lower four
+	wire [7:0]current_highscore; // 8 bit value, we're to display on lower four
                                 // bits on HEX3 and upper four bits on HEX2
 										  
-   wire [7:0]alltime_highscore; // 8 bit value, we're to display on lower four
+	wire [7:0]alltime_highscore; // 8 bit value, we're to display on lower four
                                 // bits on HEX1 and upper four bits on HEX
 	
 	wire [7:0] user_x, enemy_x; // keeps track of where the user and enemy are on the screen
@@ -87,24 +60,24 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	
 	wire [160*120-10:0]enem_grid; // grid we're gona use for the shifter bit modules for enemy ship
 
-   // Instansiate control and datapath variables 
+	// Instansiate control and datapath variables 
 	wire startGameEn; 
-  	wire shipUpdateEn, gridUpdateEn;
+	wire shipUpdateEn, gridUpdateEn;
 	wire writeEn; // write enable to plot stuff on VGA screen
 	wire gameOverEn; // signalling the ledg and ledr's when the game is in gameover state.
 	wire [2:0] colour; // 3 bit (R,G,B) value to be displatyed on VGA
 	wire [7:0] x; // 8 bit x value because of our screen resolution
 	wire [6:0] y; // 7 bit y value because of our screen resolution
 	wire gameover; // 1 bit value to signal gameover
+	wire clk_with_interupt = (~gameOverEn) & (~pause) & CLOCK_50; // pause all updates to logic handler and datapath when gameOverEn=1'b1 or pause=1'1
+
 	
-	
-	
-   // Instansiate FSM control and writing handler
+	// Instansiate FSM control and writing handler
 	// which determines when we're going to draw stuff
 	// on screen and ours ships and grids
 	control C0(
-        	.clk(CLOCK_50),
-        	.reset(reset),
+			.clk(CLOCK_50),
+			.reset(reset),
 			.startGameEn(startGameEn),
 			.shipUpdateEn(shipUpdateEn), 
 			.gridUpdateEn(gridUpdateEn),
@@ -112,14 +85,14 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 			.gameOverEn(gameOverEn),
 			.ship_health(ship_health),
 			.current_highscore(current_highscore)
-   );
-	 
-				
+	);
+ 
+			
 	// Instatiates logic controller which makes changes
 	// to our ships and grid, based on the FSM logic from
 	// the controller
 	logic_handler(
-		.clk( (~gameOverEn & ~pause) & CLOCK_50), 
+		.clk(clk_with_interupt), 
 		.reset(reset), 
 		.right(right), 
 		.left(left), 
@@ -142,7 +115,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
    //	to our VGA screen in this case we handle logic for our
    //	selection of triplets (X, Y, COLOUR)
 	datapath d1(
-		.clk((~gameOverEn & ~pause)& CLOCK_50),
+		.clk(clk_with_interupt),
 		.startGameEn(startGameEn),
 		.user_x(user_x),
 		.user_y(user_y),
@@ -214,14 +187,13 @@ module starflux (CLOCK_50, KEY, SW, LEDR,
 	// funky stuff we'll display on the LEDs once health
 	// becomes 0 or the usrs reaches the maximum possible 
 	// score FF
-	gameoverDE1SOC game_over(
-		.ledr(LEDR[8:0]), 
+	gameover game_over(
+		.ledr(LEDR[17:0]),
+		.ledg(LEDG[8:0]),
 		.clk(CLOCK_50), 
 		.reset(reset),
 		.gameover(gameOverEn)
 	);
-	assign LEDR[9] = gameOverEn;
-
 	
 
 endmodule

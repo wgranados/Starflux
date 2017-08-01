@@ -1,47 +1,46 @@
 module shifter_grid(startGameEn, shoot, clock, gridUpdateEn, user_x, grid);
-    input startGameEn; // reset the grid from SW[2]
-    input shoot; // shoot input from SW[1]
-    input clock; // default 50mhz clock input
-	 input gridUpdateEn;
-    input [7:0]user_x; // player's position on the x plane
-    output [160*120-1:0]grid; // 2d grid we're doing logic on, interperet it as paritions of 120
+	input startGameEn; // reset the grid from SW[2]
+	input shoot; // shoot input from SW[1]
+	input clock; // default 50mhz clock input
+	input gridUpdateEn;
+	input [7:0]user_x; // player's position on the x plane
+	output [160*120-1:0]grid; // 2d grid we're doing logic on, interperet it as paritions of 120
 	 
 	 
-	 // lets try slowing down the shifter bit
-	 wire [27:0]rd_1hz_out; 
-	 rate_divider rd_1hz(
+	// lets try slowing down the shifter bit
+	wire [27:0]rd_1hz_out; 
+	rate_divider rd_1hz(
 		.enable(1'b1),
 		.countdown_start(28'd3_125_000),
 		.clock(clock),
 		.reset(startGameEn),
 		.q(rd_1hz_out)
-	 );
+	);
 	 
+	wire shift_right_enable = rd_1hz_out == 28'b0 ? 1'b1 : 1'b0;
+	 
+	// generate 160 shifter bit lines, each consisting of 
+	// 120 shifter bits.
+	genvar i;
+	generate
 
-	 wire shift_right_enable = rd_1hz_out == 28'b0 ? 1'b1 : 1'b0;
-	 
-	 // generate 160 shifter bit lines, each consisting of 
-	 // 120 shifter bits.
-	 genvar i;
-	 generate
+		for(i = 0;i < 160;i = i+1) begin: shifter_grids
+			shifter shift_i(
+				// only load_val value we care about is at the first shifter bit
+				.load_val(user_x == i & shoot),
+				.load_n(shoot),
+				.shift_right(shift_right_enable),
+				.ASR(1'b0),
+				.clk(clock),
+				.reset_n(startGameEn),
+				// interpret partitions like 0..120, 121...140, and
+				// have the shifterbit logic be outputed on these parts
+				// of the 2d grid 
+				.Q(grid[120*(i+1)-1: 120*i])
+			);
+		end
 
-		 for(i = 0;i < 160;i = i+1) begin: shifter_grids
-				shifter shift_i(
-					// only load_val value we care about is at the first shifter bit
-					.load_val(user_x == i & shoot),
-					.load_n(shoot),
-					.shift_right(shift_right_enable),
-					.ASR(1'b0),
-					.clk(clock),
-					.reset_n(startGameEn),
-					// interpret partitions like 0..120, 121...140, and
-					// have the shifterbit logic be outputed on these parts
-					// of the 2d grid 
-					.Q(grid[120*(i+1)-1: 120*i])
-				);
-		 end
-	 
-	 endgenerate
+	endgenerate
 
 endmodule
 
@@ -50,27 +49,28 @@ module mux2to1(x, y, s, m);
 	input y; // second value to choose from
 	input s; // signal uses to determine which value to output
 	output m; // where to store selection
-  
-   // s = 1'b0 => x
+	
+	// s = 1'b0 => x
 	// s = 1'b1 => y
 	assign m = s & y | ~s & x;
 
 endmodule
 
 module flipflop(d, q, clock, reset_n);
-   // note: that this is a 1 bit register
-    input d; // input d we're going to store in our flip flop
-    input clock; // clock input
-	 input reset_n; // reset signal, synchronous high reset
-    output reg q; // register value we're going to store values in
+	// note: that this is a 1 bit register
+	input d; // input d we're going to store in our flip flop
+	input clock; // clock input
+	input reset_n; // reset signal, synchronous high reset
+	output reg q; // register value we're going to store values in
     
-    always @(posedge clock) // Triggered every time clock rises
-    begin
-        if(reset_n == 1'b1) // When reset_n is 0 (note this is tested on every rising clock edge)
-            q <= 0;               // q is set to 0. Note that the assignment uses <= since this isn't a combintorial circuit
-        else                      // when reset_n is not 0
-            q <= d;           // value of d passes through to output q
-    end
+	always @(posedge clock) // Triggered every time clock rises
+	begin
+		if(reset_n == 1'b1)	// When reset_n is 0 (note this is tested on every rising clock edge)
+			q <= 0;				// q is set to 0. Note that the assignment uses <= since this isn't a combintorial circuit
+		else						// when reset_n is not 0
+			q <= d;				// value of d passes through to output q
+	end
+
 endmodule
 
 module shifter_bit(in, load_val, shift, load_n, ignore_load_n, clk, reset_n, out);
@@ -107,7 +107,7 @@ module shifter_bit(in, load_val, shift, load_n, ignore_load_n, clk, reset_n, out
 		.d(mux_two_out),
 		.q(out),
 		.clock(clk),
-		.reset_n(reset_n)
+		.reset_n(reset_n)	
 	);
 
 endmodule
@@ -127,23 +127,21 @@ module shifter(load_val, load_n, shift_right, ASR, clk, reset_n, Q);
 	genvar i;
 	generate
   
-		for(i = 0;i < 120;i = i+1) begin: shifter_bit_init
-			  shifter_bit sb_i(
-				  .in( (i == 0 ? ASR & load_val : sb_out[i-1]) ), 
-				  .load_val(load_val), 
-				  .shift(shift_right), 
-				  .load_n(load_n), 
-				  .ignore_load_n(~(i == 0)), // ignore load_n on every shifter bit but the first one at Q[0]
-				  .clk(clk), 
-				  .reset_n(reset_n), 
-				  .out(sb_out[i]) 
-			  );
-		end
+	for(i = 0;i < 120;i = i+1) begin: shifter_bit_init
+		shifter_bit sb_i(
+			.in( (i == 0 ? ASR & load_val : sb_out[i-1]) ), 
+			.load_val(load_val), 
+			.shift(shift_right), 
+			.load_n(load_n), 
+			.ignore_load_n(~(i == 0)), // ignore load_n on every shifter bit but the first one at Q[0]
+			.clk(clk), 
+			.reset_n(reset_n), 
+			.out(sb_out[i]) 
+		);
+	end
 
-  
 	endgenerate
-  
+
 	assign Q = sb_out[119:0];
-  
-  
+
 endmodule
