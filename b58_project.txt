@@ -42,13 +42,13 @@ Vertical version of the arcade game: FPGA defenders. The difference being
 is that we have a cool down timer, a health bar, and allows for movement
 in all directions(up, down, left, right).
 
-Video URL: youtube.com/after
+Video URL: https://youtu.be/oSgEVmga3t4 
 
 Code URL (please upload a copy of this file to your repository at the end of the project as well, it will
 serve as a useful resource for future development):
 
 
-https://github.com/wgma00/CSCB58-Starflux
+https://github.com/wgma00/Starflux
 (now public)
 
 Proposal
