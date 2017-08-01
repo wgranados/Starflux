@@ -16,14 +16,14 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 
 	// Declare your inputs and outputs here
 	// Do not change the following outputs
-	output VGA_CLK;   				//	VGA Clock
-	output VGA_HS;						//	VGA H_SYNC
-	output VGA_VS;						//	VGA V_SYNC
-	output VGA_BLANK_N;				//	VGA BLANK
-	output VGA_SYNC_N;				//	VGA SYNC
-	output [9:0] VGA_R;   			//	VGA Red[9:0]
-	output [9:0] VGA_G;	 			//	VGA Green[9:0]
-	output [9:0] VGA_B;   			//	VGA Blue[9:0]
+	output VGA_CLK;					// VGA Clock
+	output VGA_HS;						// VGA H_SYNC
+	output VGA_VS;						// VGA V_SYNC
+	output VGA_BLANK_N;				// VGA BLANK
+	output VGA_SYNC_N;				// VGA SYNC
+	output [9:0] VGA_R;				// VGA Red[9:0]
+	output [9:0] VGA_G;				// VGA Green[9:0]
+	output [9:0] VGA_B;				// VGA Blue[9:0]
 	
 
 	// Game related signals, here we will give useful names to the main 
@@ -43,17 +43,17 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	// of the modules required for our games. 
 	 
 	 
-	wire [3:0]ship_health;  // 8 bit value, we're to display lower four bits on 
-                           // HEX6, and upper four bits on HEX7									
+	wire [3:0]ship_health;	// 8 bit value, we're to display lower four bits on 
+									// HEX6, and upper four bits on HEX7									
    
-	wire [3:0]gun_cooldown; // 8 bit value, we're to display lower four bits on 
-                           // 4 and upper four bits HEX5
+	wire [3:0]gun_cooldown;	// 8 bit value, we're to display lower four bits on 
+									// 4 and upper four bits HEX5
 
-	wire [7:0]current_highscore; // 8 bit value, we're to display on lower four
-                                // bits on HEX3 and upper four bits on HEX2
+	wire [7:0]current_highscore;	// 8 bit value, we're to display on lower four
+											// bits on HEX3 and upper four bits on HEX2
 										  
-	wire [7:0]alltime_highscore; // 8 bit value, we're to display on lower four
-                                // bits on HEX1 and upper four bits on HEX
+	wire [7:0]alltime_highscore;	// 8 bit value, we're to display on lower four
+											// bits on HEX1 and upper four bits on HEX
 	
 	wire [7:0] user_x, enemy_x; // keeps track of where the user and enemy are on the screen
 	wire [6:0] user_y = 7'd119, enemy_y = 7'd0; // keep track of where the user and enemy are on the screen
@@ -91,7 +91,7 @@ module starflux (CLOCK_50, KEY, SW, LEDR, LEDG,
 	// Instatiates logic controller which makes changes
 	// to our ships and grid, based on the FSM logic from
 	// the controller
-	logic_handler(
+	logic_handler lh(
 		.clk(clk_with_interupt), 
 		.reset(reset), 
 		.right(right), 
